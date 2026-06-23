@@ -1,0 +1,2763 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Demonstrativo de Resultados DRE</title>
+  <style>
+:root {
+  --ink: #07133f;
+  --muted: #63708d;
+  --line: #e3e8f3;
+  --page: #f6f8fc;
+  --panel: #ffffff;
+  --blue: #0d5be1;
+  --green: #0aa36f;
+  --red: #e23b3b;
+  --orange: #f59e0b;
+  --teal: #0891b2;
+  --violet: #7c3aed;
+  --shadow: 0 12px 28px rgba(9, 24, 66, .08);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  color: var(--ink);
+  background: var(--page);
+}
+.app { display: grid; grid-template-columns: 252px 1fr; min-height: 100vh; }
+.sidebar {
+  background: linear-gradient(180deg, #061744 0%, #08275c 100%);
+  color: #fff;
+  padding: 24px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.brand { display: flex; align-items: center; min-height: 56px; }
+.brand-logo { width: 158px; height: auto; display: block; }
+.nav { display: grid; gap: 7px; }
+.nav button, .support button {
+  border: 0;
+  width: 100%;
+  min-height: 42px;
+  border-radius: 7px;
+  color: #dbe7ff;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.nav button.active { background: #0d5be1; color: white; }
+.nav svg, .support svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2; fill: none; }
+.support { margin-top: auto; display: grid; gap: 10px; }
+.support button { border: 1px solid rgba(255,255,255,.22); }
+.main { padding: 12px 16px; overflow: hidden; }
+.topbar {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto auto;
+  gap: 10px;
+  align-items: start;
+  margin-bottom: 8px;
+}
+h1 { margin: 0; font-size: 20px; line-height: 1.02; letter-spacing: 0; }
+.control, .search {
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--panel);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 13px;
+  box-shadow: 0 8px 22px rgba(20, 44, 88, .04);
+}
+.control label { font-size: 12px; color: var(--muted); font-weight: 800; }
+select, input {
+  border: 0;
+  outline: 0;
+  color: var(--ink);
+  background: transparent;
+  font-weight: 750;
+  min-width: 120px;
+}
+.refresh-btn {
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--blue);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 13px;
+  font-size: 12px;
+  font-weight: 850;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(20, 44, 88, .08);
+}
+.refresh-btn svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2.2; fill: none; }
+.refresh-btn:hover { background: #084fc8; }
+.refresh-btn:active { transform: translateY(1px); }
+.kpis { display: grid; grid-template-columns: repeat(5, minmax(140px, 1fr)); gap: 10px; margin-bottom: 12px; }
+.card, .panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+.kpi { position: relative; min-height: 104px; padding: 16px 15px 12px; overflow: hidden; }
+.kpi::before { content: ""; position: absolute; inset: 0 0 auto; height: 4px; background: var(--accent); }
+.kpi-head { display: flex; align-items: center; gap: 10px; }
+.kpi-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent), white 84%);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+}
+.kpi-icon svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2.2; }
+.kpi-label { font-size: 10.5px; font-weight: 850; color: var(--accent); text-transform: uppercase; }
+.kpi-value { margin-top: 5px; font-size: 20px; font-weight: 900; letter-spacing: 0; }
+.kpi-note { margin-top: 5px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
+.panel { position: relative; padding: 12px; min-height: 210px; overflow: hidden; display: flex; flex-direction: column; }
+.panel::before { content: ""; position: absolute; inset: 0 0 auto; height: 4px; background: var(--accent, var(--blue)); }
+.panel.wide { grid-column: span 2; }
+.panel.full { grid-column: 1 / -1; }
+.panel h2 { margin: 0 0 8px; font-size: 14px; letter-spacing: 0; }
+.panel-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+.panel-head h2 { margin: 0; }
+.panel-caption { color: var(--muted); font-size: 12px; font-weight: 700; max-width: 650px; line-height: 1.35; }
+.chart-wrap { min-height: 210px; position: relative; flex: 1; }
+svg.chart { width: 100%; height: 100%; display: block; overflow: visible; }
+.axis { stroke: #dfe6f2; stroke-width: 1; }
+.bar-pos { fill: var(--blue); }
+.bar-neg { fill: var(--red); }
+.line { fill: none; stroke: var(--green); stroke-width: 3.5; stroke-linecap: round; }
+.line-net { fill: none; stroke: var(--violet); stroke-width: 3.5; stroke-linecap: round; }
+.trend-line { fill: none; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; }
+.trend-line.dashed { stroke-dasharray: 7 6; stroke-width: 3.2; }
+.area { fill: rgba(10, 163, 111, .12); }
+.table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.table th, .table td { border-bottom: 1px solid var(--line); padding: 11px 9px; text-align: left; }
+.table th { color: #33415f; font-size: 12px; background: #f8faff; }
+.table td:last-child, .table th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+.table.sticky th { position: sticky; top: 0; z-index: 2; }
+.table.sticky th:first-child, .table.sticky td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: #fff;
+  min-width: 238px;
+  max-width: 300px;
+}
+.table.sticky th:first-child { background: #f8faff; z-index: 4; }
+.table.sticky th.year-total, .table.sticky td.year-total { background: #fff; }
+.table.sticky th.year-total { z-index: 2; }
+.table .sub { display: block; color: var(--muted); font-size: 11px; font-weight: 750; margin-top: 3px; }
+.table .indent { padding-left: 28px; color: #33415f; }
+.table .drill-toggle {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-weight: 650;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+.table .drill-toggle::before { content: "+"; display: inline-block; width: 18px; color: var(--blue); }
+.table .drill-toggle.open::before { content: "-"; }
+.table .child-row { display: none; background: #fcfdff; }
+.table .child-row.visible { display: table-row; }
+.table .child-row td { font-weight: 500; }
+.table .child-row .dre-main { font-weight: 650; }
+.table .child-row td:first-child { padding-left: 34px; color: #33415f; font-weight: 500; }
+.table .child-row.level-2 td:first-child { padding-left: 54px; color: var(--muted); }
+.table .child-row.level-3 td:first-child { padding-left: 74px; color: var(--muted); }
+.table .dre-cell { width: 126px; min-width: 126px; max-width: 136px; white-space: nowrap; text-align: right; vertical-align: middle; }
+.table .year-total { width: 132px; min-width: 132px; max-width: 144px; }
+.table .dre-main { display: block; font-weight: 900; }
+.table .dre-detail {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 750;
+  line-height: 1.15;
+}
+.table .dre-vs { font-size: 10px; font-weight: 850; }
+.table .dre-share { color: var(--muted); }
+.table .muted { color: var(--muted); font-weight: 750; }
+.table .total-row td {
+  background: #f8fbff;
+  font-weight: 900;
+  border-bottom-color: #cbd7eb;
+}
+.table .drill-row td {
+  background: #fff;
+  font-weight: 600;
+}
+.table .drill-row .dre-main { font-weight: 650; }
+.table .metric-row td {
+  background: #fff;
+  color: var(--muted);
+  font-weight: 800;
+}
+.table .normal-row td {
+  background: #fff;
+  font-weight: 800;
+}
+.value-pos { color: var(--green); font-weight: 850; }
+.value-neg { color: var(--red); font-weight: 850; }
+.value-flat { color: var(--muted); font-weight: 850; }
+.chart .value-pos { fill: var(--green); }
+.chart .value-neg { fill: var(--red); }
+.chart .value-flat { fill: var(--muted); }
+.rank { display: grid; gap: 11px; }
+.rank-row { display: grid; grid-template-columns: minmax(110px, 1fr) 90px; gap: 12px; align-items: center; }
+.rank-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 750; font-size: 13px; }
+.rank-track { grid-column: 1 / -1; height: 8px; background: #edf2fa; border-radius: 999px; overflow: hidden; }
+.rank-fill { height: 100%; border-radius: inherit; background: var(--blue); }
+.alert-list { display: grid; gap: 12px; }
+.alert {
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.alert:last-child { border-bottom: 0; padding-bottom: 0; }
+.alert-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-weight: 900;
+}
+.alert-title { font-weight: 850; font-size: 13px; }
+.alert-sub { color: var(--muted); font-size: 12px; margin-top: 3px; font-weight: 650; }
+.pill {
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-size: 12px;
+  font-weight: 850;
+  background: #eef4ff;
+  color: var(--blue);
+}
+.dre-table-wrap { max-height: 356px; overflow: auto; border: 1px solid var(--line); border-radius: 7px; }
+.dre-table-wrap.large { max-height: 520px; }
+.visual-grid { display: grid; grid-template-columns: 1fr; gap: 10px; align-items: center; }
+.pie-wrap { min-height: 178px; display: grid; place-items: center; }
+.legend-list { display: grid; gap: 8px; width: 100%; min-width: 0; }
+.legend-row { display: grid; grid-template-columns: 12px minmax(110px, 1fr) 48px 84px; gap: 8px; align-items: center; font-size: 11px; font-weight: 750; }
+.legend-row strong { text-align: right; font-variant-numeric: tabular-nums; }
+.legend-row .sub { margin: 0; text-align: right; font-size: 11px; }
+.legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+.client-bars { display: grid; gap: 10px; }
+.client-bar-row { display: grid; grid-template-columns: 130px 1fr 96px; gap: 12px; align-items: center; font-size: 13px; font-weight: 800; }
+.client-bar-track { height: 14px; border-radius: 999px; background: #edf2fa; overflow: hidden; }
+.client-bar-fill { height: 100%; border-radius: inherit; background: var(--blue); }
+.chart-legend { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-top: -4px; color: var(--muted); font-size: 12px; font-weight: 800; }
+.chart-legend span { display: inline-flex; align-items: center; gap: 7px; }
+.legend-swatch { width: 22px; height: 8px; border-radius: 999px; display: inline-block; }
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(170px, 1fr));
+  gap: 12px;
+}
+.insight {
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 14px;
+  background: #fbfcff;
+  min-height: 116px;
+}
+.insight-label { color: var(--muted); font-size: 12px; font-weight: 850; text-transform: uppercase; }
+.insight-value { margin-top: 8px; font-size: 20px; font-weight: 900; }
+.insight-detail { margin-top: 8px; color: var(--muted); font-size: 12px; font-weight: 700; line-height: 1.35; }
+.evolution-list { margin-top: 14px; display: grid; gap: 10px; }
+.evolution-row {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) 110px 110px 110px;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  align-items: center;
+  font-size: 13px;
+}
+.evolution-row strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.footer-note {
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+.view { display: none; }
+.view.active { display: block; }
+.module-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
+.module-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.mini-kpis { display: grid; grid-template-columns: repeat(5, minmax(150px, 1fr)); gap: 10px; margin-bottom: 12px; }
+.mini-card { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); padding: 13px 14px 11px; overflow: hidden; min-height: 92px; }
+.mini-card::before { content: ""; position: absolute; inset: 0 0 auto; height: 4px; background: var(--accent, var(--blue)); }
+.mini-label { color: var(--muted); font-size: 11px; font-weight: 850; text-transform: uppercase; }
+.mini-value { margin-top: 6px; font-size: 19px; font-weight: 900; }
+.mini-note { margin-top: 5px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.analysis-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.analysis-table th, .analysis-table td { border-bottom: 1px solid var(--line); padding: 9px 8px; text-align: right; }
+.analysis-table th:first-child, .analysis-table td:first-child { text-align: left; }
+.analysis-table th { color: var(--muted); font-size: 11px; text-transform: uppercase; background: #f8fbff; }
+.waterfall { display: grid; gap: 12px; }
+.waterfall-row { display: grid; grid-template-columns: 190px 1fr 110px; gap: 12px; align-items: center; font-size: 12px; font-weight: 800; }
+.waterfall-track { height: 12px; border-radius: 999px; background: #edf2fa; overflow: hidden; }
+.waterfall-fill { height: 100%; border-radius: inherit; background: var(--blue); }
+.comparison-stack { display: grid; gap: 12px; }
+.comparison-box { position: relative; border: 1px solid var(--line); border-radius: 8px; padding: 14px; background: #fbfcff; }
+.comparison-box h3 { margin: 0 0 10px; font-size: 14px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.comparison-sub { color: var(--muted); font-size: 11px; font-weight: 800; }
+.comparison-row { display: grid; grid-template-columns: 1fr 90px 72px; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 12px; font-weight: 800; }
+.comparison-row:first-of-type { border-top: 0; }
+.panel-action-btn {
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--blue);
+  font-size: 11px;
+  font-weight: 850;
+  padding: 7px 9px;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(9, 24, 66, .06);
+}
+.panel-action-btn:hover { background: #f7fbff; border-color: rgba(13,91,225,.35); }
+.comparison-custom-box { background: #f7fbff; border-color: rgba(13,91,225,.25); }
+.custom-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  background: rgba(6, 19, 63, .42);
+  backdrop-filter: blur(4px);
+}
+.custom-modal.open { display: flex; }
+.custom-dialog {
+  width: min(620px, 94vw);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 28px 70px rgba(6, 19, 63, .26);
+  padding: 18px;
+}
+.custom-dialog h2 { margin: 0 0 6px; font-size: 18px; }
+.custom-dialog p { margin: 0 0 14px; color: var(--muted); font-size: 12px; font-weight: 700; }
+.custom-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.custom-field { display: grid; gap: 6px; }
+.custom-field label { color: var(--muted); font-size: 11px; font-weight: 850; text-transform: uppercase; }
+.custom-field select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 10px;
+  color: var(--ink);
+  font-weight: 800;
+  background: #fff;
+}
+.custom-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+.custom-actions button {
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--ink);
+  padding: 9px 12px;
+  font-weight: 850;
+  cursor: pointer;
+}
+.custom-actions .primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+.indicator-top-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.period-chart-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; align-items: stretch; }
+.period-chart-side { display: flex; align-items: center; justify-content: center; gap: 18px; color: var(--muted); font-size: 11px; font-weight: 850; }
+.period-chart-side span { display: inline-flex; align-items: center; gap: 7px; }
+.period-chart-side i { width: 22px; height: 8px; border-radius: 999px; display: inline-block; }
+.indicator-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+.indicator-card { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); padding: 12px; overflow: hidden; min-height: 220px; }
+.indicator-card::before { content: ""; position: absolute; inset: 0 0 auto; height: 4px; background: var(--accent, var(--blue)); }
+.indicator-card { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; transform-origin: center; }
+.indicator-card:hover { transform: scale(1.035); z-index: 3; box-shadow: 0 18px 36px rgba(9, 24, 66, .16); border-color: color-mix(in srgb, var(--accent), var(--line) 42%); }
+.indicator-card h3 { margin: 0 0 8px; font-size: 13px; }
+.indicator-card svg.chart { height: 152px; }
+.zoom-card-btn {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--accent, var(--blue));
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(9, 24, 66, .08);
+}
+.zoom-card-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.2; }
+.zoom-card-btn:hover { background: color-mix(in srgb, var(--accent), white 92%); }
+.indicator-note { display: grid; gap: 4px; margin-top: 4px; font-size: 10.5px; font-weight: 800; color: var(--muted); }
+.indicator-note div { display: flex; justify-content: space-between; gap: 8px; }
+.indicator-year-legend { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; color: var(--muted); font-size: 10.5px; font-weight: 850; }
+.indicator-year-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.indicator-year-legend i { width: 18px; height: 8px; border-radius: 999px; display: inline-block; }
+.zoom-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 34px;
+  background: rgba(6, 19, 63, .46);
+  backdrop-filter: blur(4px);
+}
+.zoom-modal.open { display: flex; }
+.zoom-dialog {
+  width: min(980px, 94vw);
+  max-height: 88vh;
+  overflow: auto;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 28px 70px rgba(6, 19, 63, .28);
+  padding: 22px;
+  position: relative;
+}
+.zoom-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.zoom-content .indicator-card {
+  transform: none !important;
+  box-shadow: none;
+  border: 0;
+  padding: 8px 4px 2px;
+  min-height: 0;
+}
+.zoom-content .indicator-card::before,
+.zoom-content .zoom-card-btn { display: none; }
+.zoom-content .indicator-card h3 { font-size: 22px; margin-bottom: 18px; }
+.zoom-content .indicator-card svg.chart { height: 430px; }
+.zoom-content .indicator-note { font-size: 14px; margin-top: 12px; }
+.chart-tooltip {
+  position: fixed;
+  z-index: 60;
+  display: none;
+  max-width: 260px;
+  padding: 9px 10px;
+  border-radius: 7px;
+  background: #07133f;
+  color: #fff;
+  box-shadow: 0 16px 34px rgba(6, 19, 63, .25);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.35;
+  white-space: pre-line;
+  pointer-events: none;
+}
+.chart-tooltip.open { display: block; }
+#view-dashboard .grid { gap: 10px; }
+#view-dashboard .kpis { gap: 8px; margin-bottom: 7px; }
+#view-dashboard .kpi { min-height: 66px; padding: 9px 11px 7px; }
+#view-dashboard .kpi::before { height: 3px; }
+#view-dashboard .kpi-head { gap: 8px; }
+#view-dashboard .kpi-icon { width: 27px; height: 27px; }
+#view-dashboard .kpi-icon svg { width: 14px; height: 14px; }
+#view-dashboard .kpi-label { font-size: 8.2px; line-height: 1.02; }
+#view-dashboard .kpi-value { margin-top: 2px; font-size: 15.2px; }
+#view-dashboard .kpi-note { margin-top: 2px; font-size: 8.8px; line-height: 1.02; }
+#view-dashboard .panel { min-height: 0; padding: 8px 9px; }
+#view-dashboard .panel::before { height: 3px; }
+#view-dashboard .grid { gap: 8px; }
+#view-dashboard .panel.wide,
+#view-dashboard .grid > .panel:nth-child(2) { height: 258px; }
+#view-dashboard .grid > .panel:nth-child(n+3) { height: 270px; }
+#view-dashboard .chart-wrap { min-height: 0; height: 222px; }
+#view-dashboard .panel.wide .chart-wrap { min-height: 0; height: 206px; }
+#view-dashboard .panel h2 { font-size: 12px; margin-bottom: 4px; line-height: 1.08; }
+#view-dashboard .panel-head { margin-bottom: 6px; }
+#view-dashboard .pie-wrap { min-height: 0; height: 122px; }
+#view-dashboard .legend-list { gap: 5px; }
+#view-dashboard .legend-row { font-size: 9.2px; grid-template-columns: 9px minmax(80px, 1fr) 35px 60px; gap: 5px; }
+#view-dashboard .chart-legend { font-size: 9.6px; gap: 9px; margin-top: -6px; line-height: 1; }
+#view-dashboard .legend-swatch { width: 16px; height: 6px; }
+#view-dashboard .grid > .panel:nth-child(n+3) .chart-legend {
+  flex-wrap: nowrap;
+  overflow: hidden;
+  white-space: nowrap;
+  justify-content: flex-start;
+}
+#view-dashboard .grid > .panel:nth-child(n+3) .chart-legend span { flex: 0 1 auto; min-width: 0; }
+body.wide-trend-cards #view-dashboard .grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+body.wide-trend-cards #view-dashboard .panel.wide { grid-column: span 4; }
+body.wide-trend-cards #view-dashboard .grid > .panel:nth-child(2) { grid-column: span 2; }
+body.wide-trend-cards #view-dashboard .grid > .panel:nth-child(3),
+body.wide-trend-cards #view-dashboard .grid > .panel:nth-child(4),
+body.wide-trend-cards #view-dashboard .grid > .panel:nth-child(5) { grid-column: span 2; }
+body.wide-trend-cards #view-dashboard .grid > .panel:nth-child(n+3) { height: 288px; }
+body.wide-trend-cards #view-dashboard .grid > .panel:nth-child(n+3) .chart-legend {
+  flex-wrap: wrap;
+  overflow: visible;
+  white-space: normal;
+}
+body.wide-trend-cards #view-dashboard .grid > .panel:nth-child(n+3) .chart-wrap { height: 236px; }
+#view-indicators .panel { min-height: 0; height: 300px; }
+#view-indicators .period-comparison-chart { min-height: 226px; height: 226px; }
+#view-indicators .chart-legend { font-size: 11px; margin-top: -4px; }
+#view-dre .grid { gap: 10px; }
+#view-dre .panel.full { min-height: 0; padding: 10px 12px; }
+#view-dre .dre-comparison-panel { height: 250px; }
+#view-dre .dre-detail-panel { height: calc(100vh - 400px); min-height: 300px; }
+#view-dre .panel-head { margin-bottom: 8px; }
+#view-dre .panel h2 { font-size: 14px; margin: 0; }
+#view-dre .panel-caption { font-size: 11px; line-height: 1.2; }
+#view-dre .dre-detail-panel .dre-table-wrap.large { max-height: calc(100vh - 470px); }
+#view-dre .dre-comparison-panel .dre-table-wrap { max-height: 190px; overflow: auto; }
+#view-dre .dre-comparison-panel .table th, #view-dre .dre-comparison-panel .table td { padding: 6px 10px; }
+#view-dre .dre-comparison-panel .table th:nth-child(n+2),
+#view-dre .dre-comparison-panel .table td:nth-child(n+2) { text-align: right; }
+#view-dre .dre-comparison-panel .table th:first-child,
+#view-dre .dre-comparison-panel .table td:first-child { text-align: left; min-width: 230px; }
+#view-dre .dre-comparison-panel .table .dre-main { font-size: 11px; }
+#view-dre .dre-comparison-panel .table .dre-detail { justify-content: flex-end; }
+#view-dre .dre-comparison-panel .total-row td { font-weight: 900; background: #fbfdff; }
+#view-dre .dre-comparison-panel .drill-row td { font-weight: 700; }
+#view-dre .dre-comparison-panel .child-row td { font-weight: 500; }
+#view-dre .table { font-size: 11px; }
+#view-dre .table th, #view-dre .table td { padding: 6px 6px; }
+#view-dre .table th { font-size: 10px; }
+#view-dre .table.sticky th:first-child, #view-dre .table.sticky td:first-child {
+  min-width: 216px;
+  max-width: 248px;
+}
+#view-dre .table .dre-cell { width: 98px; min-width: 98px; max-width: 106px; }
+#view-dre .table .year-total { width: 108px; min-width: 108px; max-width: 116px; }
+#view-dre .table .dre-main { font-size: 11px; }
+#view-dre .table .dre-detail { gap: 4px; margin-top: 2px; font-size: 8.8px; line-height: 1.05; }
+#view-dre .table .dre-vs { font-size: 8.8px; }
+#view-dre .table .drill-toggle::before { width: 14px; }
+#view-dre .table .child-row td:first-child { padding-left: 24px; }
+#view-dre .table .child-row.level-2 td:first-child { padding-left: 38px; }
+#view-dre .table .child-row.level-3 td:first-child { padding-left: 52px; }
+#view-evolution .mini-kpis { gap: 10px; margin-bottom: 10px; }
+#view-evolution .mini-card { min-height: 92px; padding: 12px 13px 10px; }
+#view-evolution .mini-card::before { height: 4px; }
+#view-evolution .mini-label { font-size: 10px; line-height: 1.15; }
+#view-evolution .mini-value { margin-top: 6px; font-size: 18px; }
+#view-evolution .mini-note { margin-top: 5px; font-size: 11px; line-height: 1.15; }
+#view-evolution .module-grid.two { gap: 10px; align-items: start; }
+#view-evolution .module-grid.two + .module-grid.two { margin-top: 10px !important; }
+#view-evolution .panel { min-height: 0; padding: 12px 13px; }
+#view-evolution .panel h2 { margin-bottom: 8px; font-size: 14px; line-height: 1.15; }
+#view-evolution .evolution-row-main .panel { height: 280px; }
+#view-evolution .evolution-row-detail .panel { height: 248px; }
+#view-evolution .chart-wrap { height: 190px; min-height: 190px; }
+#view-evolution #evolutionMonthlyChart { height: 214px; min-height: 214px; }
+#view-evolution #evolutionClientChart { height: 190px; min-height: 190px; }
+#view-evolution .chart-legend { gap: 12px; margin-top: -4px; font-size: 11px; }
+#view-evolution .legend-swatch { width: 19px; height: 7px; }
+#view-evolution .comparison-stack { gap: 9px; }
+#view-evolution #periodComparisons {
+  max-height: 256px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+#view-evolution #periodComparisons::-webkit-scrollbar { width: 8px; }
+#view-evolution #periodComparisons::-webkit-scrollbar-track { background: #edf2fa; border-radius: 999px; }
+#view-evolution #periodComparisons::-webkit-scrollbar-thumb { background: #b8c6dc; border-radius: 999px; }
+#view-evolution .comparison-box { padding: 10px 11px; }
+#view-evolution .comparison-box h3 { margin-bottom: 6px; font-size: 13px; }
+#view-evolution .comparison-row { padding: 5px 0; font-size: 11px; grid-template-columns: 1fr 82px 58px; gap: 8px; }
+#view-evolution .analysis-table { font-size: 11px; }
+#view-evolution .analysis-table th, #view-evolution .analysis-table td { padding: 5px 7px; }
+#view-evolution .evolution-row-detail .panel:first-child { overflow: hidden; }
+.note-card-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 8;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: rgba(255,255,255,.94);
+  color: var(--muted);
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(20,44,88,.08);
+}
+.note-card-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; }
+.note-card-btn:hover, .note-card-btn.has-note { color: var(--blue); border-color: rgba(13,91,225,.35); background: #f7fbff; }
+.indicator-card > .note-card-btn { right: 45px; }
+.note-card-btn.has-note::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+}
+.panel > .note-card-btn + h2,
+.indicator-card > .note-card-btn + .zoom-card-btn + h3,
+.indicator-card > .note-card-btn + h3 { padding-right: 34px; }
+.note-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgba(3, 16, 48, .42);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.note-modal.open { display: flex; }
+.note-dialog {
+  width: min(620px, 94vw);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 28px 60px rgba(6, 24, 58, .22);
+  padding: 18px;
+}
+.note-dialog h2 { margin: 0; font-size: 18px; }
+.note-subtitle { margin-top: 4px; color: var(--muted); font-size: 12px; font-weight: 700; }
+.note-textarea {
+  width: 100%;
+  min-height: 210px;
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  resize: vertical;
+  color: var(--ink);
+  font: 700 13px/1.45 inherit;
+  outline: none;
+}
+.note-textarea:focus { border-color: rgba(13,91,225,.45); box-shadow: 0 0 0 3px rgba(13,91,225,.08); }
+.note-actions { margin-top: 14px; display: flex; justify-content: flex-end; gap: 10px; }
+.note-actions button {
+  height: 36px;
+  border-radius: 7px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  padding: 0 14px;
+  font-weight: 850;
+  cursor: pointer;
+}
+.note-actions .primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+@media (max-width: 1180px) {
+  .app { grid-template-columns: 86px 1fr; }
+  .brand { justify-content: center; }
+  .brand-logo { width: 42px; }
+  .nav span, .support span { display: none; }
+  .sidebar { padding: 18px 14px; }
+  .kpis { grid-template-columns: repeat(2, minmax(170px, 1fr)); }
+  .grid { grid-template-columns: 1fr; }
+  .panel.wide { grid-column: auto; }
+  .panel.full { grid-column: auto; }
+  .insight-grid { grid-template-columns: repeat(2, minmax(170px, 1fr)); }
+  .module-grid, .module-grid.two, .mini-kpis, .indicator-grid, .indicator-top-grid { grid-template-columns: 1fr 1fr; }
+  .visual-grid { grid-template-columns: 1fr; }
+  .topbar { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 720px) {
+  .app { display: block; }
+  .sidebar { display: none; }
+  .main { padding: 18px 14px; }
+  .topbar, .kpis { grid-template-columns: 1fr; }
+  .module-grid, .module-grid.two, .mini-kpis, .indicator-grid, .indicator-top-grid { grid-template-columns: 1fr; }
+  .insight-grid, .evolution-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <img class="brand-logo" src="assets/redefrete-logo-branco.png" alt="Redefrete">
+    </div>
+    <nav class="nav">
+      <button class="active" data-view="dashboard"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg><span>Dashboard</span></button>
+      <button data-view="dre"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M10 13h6M10 17h6"/></svg><span>DRE</span></button>
+      <button data-view="evolution"><svg viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M7 16v-5M12 16V7M17 16v-8"/></svg><span>Evolução</span></button>
+      <button data-view="indicators"><svg viewBox="0 0 24 24"><path d="M4 17l6-6 4 4 6-8"/><path d="M15 7h5v5"/></svg><span>Indicadores</span></button>
+    </nav>
+    <div class="support">
+      <button><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.7 2.7 0 1 1 4.4 2.1c-.9.7-1.4 1.1-1.4 2.4"/><path d="M12 17h.01"/></svg><span>Suporte</span></button>
+      <button><svg viewBox="0 0 24 24"><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/><path d="M14 4h5v16h-5"/></svg><span>Sair do sistema</span></button>
+    </div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1 id="dashboardTitle">Demonstrativo de Resultados DRE</h1>
+      </div>
+      <div class="control"><label>Ano:</label><select id="yearFilter"></select></div>
+      <div class="control"><label>Período:</label><select id="periodFilter"></select></div>
+      <div class="control"><label>Cliente:</label><select id="clientFilter"></select></div>
+      <button class="refresh-btn" id="refreshBase" type="button" title="Atualizar base de dados"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 1-15.6 6.1"/><path d="M3 12A9 9 0 0 1 18.6 5.9"/><path d="M3 19v-5h5"/><path d="M21 5v5h-5"/></svg><span>Atualizar base</span></button>
+    </header>
+
+    <section class="view active" id="view-dashboard">
+    <div class="kpis">
+      <article class="card kpi" style="--accent:var(--blue)"><div class="kpi-head"><div class="kpi-icon"><svg viewBox="0 0 24 24"><path d="M4 7h15a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4z"/><path d="M4 7V5a2 2 0 0 1 2-2h10"/><path d="M17 13h4"/></svg></div><div><div class="kpi-label">Faturamento Líquido</div><div class="kpi-value" id="kpiNetRevenue"></div><div class="kpi-note" id="kpiNetRevenueNote"></div></div></div></article>
+      <article class="card kpi" style="--accent:var(--green)"><div class="kpi-head"><div class="kpi-icon"><svg viewBox="0 0 24 24"><path d="M4 14a8 8 0 1 1 16 0"/><path d="M12 14l4-4"/><path d="M6 20h12"/></svg></div><div><div class="kpi-label">Margem de Contribuição</div><div class="kpi-value" id="kpiContribution"></div><div class="kpi-note" id="kpiContributionNote"></div></div></div></article>
+      <article class="card kpi" style="--accent:var(--red)"><div class="kpi-head"><div class="kpi-icon"><svg viewBox="0 0 24 24"><path d="M4 17l6-6 4 4 6-8"/><path d="M15 7h5v5"/></svg></div><div><div class="kpi-label">Custos / Despesas</div><div class="kpi-value" id="kpiCostsExpenses"></div><div class="kpi-note" id="kpiCostsExpensesNote"></div></div></div></article>
+      <article class="card kpi" style="--accent:var(--teal)"><div class="kpi-head"><div class="kpi-icon"><svg viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M7 16v-5M12 16V7M17 16v-8"/></svg></div><div><div class="kpi-label">Ebitda</div><div class="kpi-value" id="kpiEbitda"></div><div class="kpi-note" id="kpiEbitdaNote"></div></div></div></article>
+      <article class="card kpi" style="--accent:var(--violet)"><div class="kpi-head"><div class="kpi-icon"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div><div><div class="kpi-label">Resultado Líquido</div><div class="kpi-value" id="kpiNetResult"></div><div class="kpi-note" id="kpiNetResultNote"></div></div></div></article>
+    </div>
+
+    <div class="grid">
+      <article class="panel wide" style="--accent:var(--green)"><h2>Evolução Mensal</h2><div class="chart-wrap" id="monthlyChart"></div></article>
+      <article class="panel" style="--accent:var(--red)">
+        <div class="panel-head">
+          <h2>Faturamento Bruto por Cliente</h2>
+        </div>
+        <div id="clientPie"></div>
+      </article>
+      <article class="panel" style="--accent:var(--teal)">
+        <div class="panel-head">
+          <h2>Receitas por Cliente</h2>
+        </div>
+        <div class="chart-wrap" id="clientRevenueTrendChart"></div>
+      </article>
+      <article class="panel" style="--accent:var(--violet)">
+        <div class="panel-head">
+          <h2>Evolução dos Custos</h2>
+        </div>
+        <div class="chart-wrap" id="costTrendChart"></div>
+      </article>
+      <article class="panel" style="--accent:var(--blue)">
+        <div class="panel-head">
+          <h2>Evolução das Despesas</h2>
+        </div>
+        <div class="chart-wrap" id="expenseTrendChart"></div>
+      </article>
+    </div>
+    </section>
+
+    <section class="view" id="view-dre">
+      <div class="grid">
+        <article class="panel full dre-comparison-panel" style="--accent:var(--green)">
+          <div class="panel-head">
+            <h2>DRE Comparativo</h2>
+            <div class="panel-caption">Ano atual vs mesmo período do ano anterior. Valores expressos em R$ Mil</div>
+          </div>
+          <div class="dre-table-wrap">
+            <table class="table" id="dreYtdComparison"></table>
+          </div>
+        </article>
+        <article class="panel full dre-detail-panel" style="--accent:var(--blue)">
+          <div class="panel-head">
+            <h2>DRE Detalhado</h2>
+            <div class="panel-caption">Valores expressos em R$ Mil</div>
+          </div>
+          <div class="dre-table-wrap large">
+            <table class="table sticky" id="dreTableModule"></table>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="view" id="view-evolution">
+      <div id="evolutionKpis" class="mini-kpis"></div>
+      <div class="module-grid two evolution-row-main">
+        <article class="panel" style="--accent:var(--green)"><h2>Evolução Mensal - Receita Líquida, EBITDA e Resultado Líquido</h2><div class="chart-wrap" id="evolutionMonthlyChart"></div></article>
+        <article class="panel" style="--accent:var(--violet)">
+          <div class="panel-head">
+            <h2>Comparativos</h2>
+            <button class="panel-action-btn" id="customComparisonOpen" type="button">Personalizar</button>
+          </div>
+          <div id="periodComparisons"></div>
+        </article>
+      </div>
+      <div class="module-grid two evolution-row-detail" style="margin-top:16px">
+        <article class="panel" style="--accent:var(--red)"><h2>Maiores variações por conta</h2><div id="evolutionDeviations"></div></article>
+        <article class="panel" style="--accent:var(--blue)"><h2>Evolução por cliente - Receita Líquida (R$ mil)</h2><div class="chart-wrap" id="evolutionClientChart"></div></article>
+      </div>
+    </section>
+
+    <section class="view" id="view-indicators">
+      <div class="indicator-top-grid">
+        <article class="panel" style="--accent:var(--blue)">
+          <h2>Comparativo Trimestral - Receita Líquida, EBITDA e Resultado Líquido</h2>
+          <div class="chart-wrap period-comparison-chart" id="quarterComparisonChart"></div>
+        </article>
+        <article class="panel" style="--accent:var(--teal)">
+          <h2>Comparativo Semestral - Receita Líquida, EBITDA e Resultado Líquido</h2>
+          <div class="chart-wrap period-comparison-chart" id="semesterComparisonChart"></div>
+        </article>
+      </div>
+      <div id="quarterIndicatorCards" class="indicator-grid"></div>
+    </section>
+
+  </main>
+</div>
+<div class="zoom-modal" id="indicatorZoomModal" aria-hidden="true">
+  <div class="zoom-dialog">
+    <button class="zoom-close" type="button" id="indicatorZoomClose" aria-label="Fechar">×</button>
+    <div class="zoom-content" id="indicatorZoomContent"></div>
+  </div>
+</div>
+<div class="note-modal" id="noteModal" aria-hidden="true">
+  <div class="note-dialog">
+    <h2 id="noteTitle">Nota explicativa</h2>
+    <div class="note-subtitle" id="noteSubtitle"></div>
+    <textarea class="note-textarea" id="noteText" placeholder="Digite a nota explicativa deste card..."></textarea>
+    <div class="note-actions">
+      <button type="button" id="noteCancel">Cancelar</button>
+      <button type="button" class="primary" id="noteSave">Salvar nota</button>
+    </div>
+  </div>
+</div>
+<div class="custom-modal" id="customComparisonModal" aria-hidden="true">
+  <div class="custom-dialog">
+    <h2>Comparativo personalizado</h2>
+    <p>Escolha qualquer intervalo base e qualquer intervalo comparativo da base carregada.</p>
+    <div class="custom-grid">
+      <div class="custom-field"><label>Base início</label><select id="customBaseStart"></select></div>
+      <div class="custom-field"><label>Base fim</label><select id="customBaseEnd"></select></div>
+      <div class="custom-field"><label>Comparativo início</label><select id="customCompareStart"></select></div>
+      <div class="custom-field"><label>Comparativo fim</label><select id="customCompareEnd"></select></div>
+    </div>
+    <div class="custom-actions">
+      <button type="button" id="customComparisonClear">Limpar</button>
+      <button type="button" id="customComparisonCancel">Cancelar</button>
+      <button type="button" class="primary" id="customComparisonApply">Aplicar</button>
+    </div>
+  </div>
+</div>
+<div class="chart-tooltip" id="chartTooltip"></div>
+<script>
+const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+const NUM = new Intl.NumberFormat('pt-BR');
+const PCT = new Intl.NumberFormat('pt-BR', { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1 });
+let DASHBOARD_DATA = null;
+let DASHBOARD_ROWS = [];
+let DASHBOARD_NOTES = {};
+const CLIENT_MAP = {
+  'AGROPAD': 'REDEFRETE',
+  'AMAZON': 'AMAZON',
+  'AMAZON EDSP': 'AMAZON',
+  'AMAZON FM': 'AMAZON',
+  'AMAZON LM': 'AMAZON',
+  'AMAZON SD': 'AMAZON',
+  'BIMBO LM': 'BIMBO',
+  'CASAS BAHIA': 'CASAS BAHIA',
+  'FAST SHOP': 'FAST SHOP',
+  'GPA LM': 'GPA',
+  'MAGALU': 'MAGALU',
+  'MERCADO LIVRE LM': 'MERCADO LIVRE',
+  'MERCADO LIVRE RENTAL': 'MERCADO LIVRE',
+  'PETLOVE': 'PETLOVE',
+  'PETLOVE FM': 'PETLOVE',
+  'PETLOVE FM (INATIVO)': 'PETLOVE',
+  'PETLOVE LM': 'PETLOVE',
+  'SHOPEE LM': 'SHOPEE',
+  'SHOPEE': 'SHOPEE',
+  'SHOPEE LH': 'SHOPEE',
+  'VIA VAREJO': 'VIA VAREJO',
+  'REDEFRETE': 'REDEFRETE',
+};
+
+const ALLOCATION_PROJECTS = new Set(['AGROPAD', 'REDEFRETE']);
+
+const state = { year: '', period: 'all', client: 'all', view: 'dashboard', customComparison: null };
+let activeNoteKey = '';
+let activeNoteTitle = '';
+const $ = (id) => document.getElementById(id);
+const VIEW_TITLES = {
+  dashboard: 'Demonstrativo de Resultados DRE',
+  dre: 'DRE',
+  evolution: 'Análise de Evolução',
+  indicators: 'Indicadores',
+};
+
+function monthLabel(value) {
+  const [year, month] = value.split('-');
+  return `${month}/${year}`;
+}
+
+function shortMonthLabel(value) {
+  const [year, month] = value.split('-');
+  return `${month}/${year.slice(2)}`;
+}
+
+function yearPeriods() {
+  const year = state.year || dashboardYears()[0] || '2026';
+  return Array.from({ length: 12 }, (_, i) => `${year}-${String(i + 1).padStart(2, '0')}`);
+}
+
+function dashboardYears() {
+  return [...new Set(DASHBOARD_DATA.meta.periods.map(period => period.slice(0, 4)))]
+    .sort((a, b) => b.localeCompare(a));
+}
+
+function periodsForYear(year) {
+  return DASHBOARD_DATA.meta.periods
+    .filter(period => period.startsWith(`${year}-`))
+    .sort((a, b) => a.localeCompare(b));
+}
+
+function previousPeriod(period) {
+  const [year, month] = period.split('-').map(Number);
+  const date = new Date(year, month - 2, 1);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function fillSelect(id, values, allLabel = null, labelFn = value => value) {
+  const el = $(id);
+  el.innerHTML = `${allLabel === null ? '' : `<option value="all">${allLabel}</option>`}` + values.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(labelFn(v))}</option>`).join('');
+}
+
+function dashboardClients() {
+  const clients = new Set();
+  for (const row of DASHBOARD_ROWS) {
+    if (state.year && !row.periodo.startsWith(`${state.year}-`)) continue;
+    const client = clientNameFromRow(row);
+    if (client !== 'REDEFRETE') clients.add(client);
+  }
+  return [...clients].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
+}
+
+function normalizeText(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
+function clientNameFromRow(row) {
+  return row.clienteDashboard || clientNameFromProject(row.projeto);
+}
+
+async function loadDashboardData() {
+  const response = await fetch(`dashboard_data.json?ts=${Date.now()}`);
+  if (!response.ok) throw new Error('Não foi possível carregar dashboard_data.json');
+  DASHBOARD_DATA = await response.json();
+  DASHBOARD_ROWS = DASHBOARD_DATA.rows;
+}
+
+async function loadDashboardNotes() {
+  try {
+    const response = await fetch(`dashboard_notes.json?ts=${Date.now()}`);
+    if (!response.ok) throw new Error('notes unavailable');
+    DASHBOARD_NOTES = await response.json();
+  } catch (error) {
+    DASHBOARD_NOTES = {};
+  }
+}
+
+async function persistDashboardNote(key, note) {
+  DASHBOARD_NOTES[key] = {
+    note,
+    title: activeNoteTitle,
+    updatedAt: new Date().toISOString(),
+  };
+  if (!note.trim()) delete DASHBOARD_NOTES[key];
+  const response = await fetch('/notes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(DASHBOARD_NOTES),
+  });
+  if (!response.ok) throw new Error('Não foi possível salvar a nota explicativa');
+}
+
+function filteredRows(includeComparisonPeriods = false) {
+  const displayPeriods = state.period === 'all' ? yearPeriods() : [state.period];
+  const comparisonPeriods = includeComparisonPeriods ? displayPeriods.map(previousPeriod) : [];
+  const allowedPeriods = new Set([...displayPeriods, ...comparisonPeriods]);
+  return DASHBOARD_ROWS.filter(row => {
+    if (state.year && !allowedPeriods.has(row.periodo)) return false;
+    if (state.client !== 'all' && clientNameFromRow(row) !== state.client) return false;
+    return true;
+  });
+}
+
+function groupBy(rows, key) {
+  const map = new Map();
+  for (const row of rows) map.set(row[key], (map.get(row[key]) || 0) + row.valor);
+  return [...map.entries()].map(([nome, valor]) => ({ nome, valor })).sort((a, b) => Math.abs(b.valor) - Math.abs(a.valor));
+}
+
+function monthAgg(rows) {
+  const map = new Map(DASHBOARD_DATA.meta.periods.map(p => [p, { periodo: p, receitas: 0, saidas: 0, resultado: 0 }]));
+  for (const row of rows) {
+    const item = map.get(row.periodo) || { periodo: row.periodo, receitas: 0, saidas: 0, resultado: 0 };
+    item.resultado += row.valor;
+    if (row.valor >= 0) item.receitas += row.valor;
+    else item.saidas += row.valor;
+    map.set(row.periodo, item);
+  }
+  return [...map.values()].sort((a, b) => a.periodo.localeCompare(b.periodo));
+}
+
+function isAccount(row, text) {
+  return normalizeText(row.conta).includes(normalizeText(text));
+}
+
+function isCategory(row, text) {
+  return normalizeText(row.categoria).includes(normalizeText(text));
+}
+
+function isIssRow(row) {
+  const categoryNorm = normalizeText(row.categoria);
+  return categoryNorm === 'iss' || categoryNorm.startsWith('iss ') || categoryNorm.includes('iss retido');
+}
+
+function isIrrfRow(row) {
+  return isCategory(row, 'IRRF') || isAccount(row, 'IRRF');
+}
+
+function createDreBucket(periodo) {
+  return {
+    periodo,
+    gross: 0,
+    pis: 0,
+    cofins: 0,
+    iss: 0,
+    serviceCosts: 0,
+    revenueDeductions: 0,
+    otherRevenue: 0,
+    costsDeductions: 0,
+    admin: 0,
+    people: 0,
+    salesMarketing: 0,
+    otherTaxes: 0,
+    depreciation: 0,
+    financialRevenue: 0,
+    financialExpense: 0,
+    irpj: 0,
+    csll: 0,
+    depAdmin: 0,
+  };
+}
+
+function dreStructured(rows, periodsOverride = null, comparisonPeriodsOverride = null) {
+  const allPeriods = periodsOverride || yearPeriods();
+  const periods = periodsOverride
+    ? allPeriods
+    : state.period === 'all'
+    ? allPeriods
+    : [state.period, ...allPeriods.filter(period => period !== state.period)];
+  const comparisonPeriods = comparisonPeriodsOverride || [...new Set(periods.map(previousPeriod))];
+  const bucketPeriods = [...new Set([...periods, ...comparisonPeriods])];
+  const byPeriod = new Map(bucketPeriods.map(period => [period, createDreBucket(period)]));
+
+  for (const row of rows) {
+    if (!bucketPeriods.includes(row.periodo)) continue;
+    const bucket = byPeriod.get(row.periodo);
+    if (isAccount(row, 'Receita Bruta')) bucket.gross += row.valor;
+    const isPis = isCategory(row, 'PIS');
+    const isCofins = isCategory(row, 'COFINS');
+    const isIss = isIssRow(row);
+    const isIrrf = isIrrfRow(row);
+    const isCsll = isCategory(row, 'CSLL') || isAccount(row, 'CSLL');
+    if (isPis) bucket.pis += row.valor;
+    if (isCofins) bucket.cofins += row.valor;
+    if (isIss) bucket.iss += row.valor;
+    if (isAccount(row, 'Custo dos Serviços')) bucket.serviceCosts += row.valor;
+    if (isAccount(row, 'Deduções de Receita')) bucket.revenueDeductions += row.valor;
+    if (isAccount(row, 'Outras Receitas')) bucket.otherRevenue += row.valor;
+    if (isCategory(row, 'Depreciação')) { bucket.depreciation += row.valor; bucket.depAdmin += row.valor; }
+    else if (isAccount(row, 'Despesas Administrativas')) bucket.admin += row.valor;
+    if (isAccount(row, 'Despesas com Pessoal')) bucket.people += row.valor;
+    if (isAccount(row, 'Despesas de Vendas')) bucket.salesMarketing += row.valor;
+    if (isAccount(row, 'Outros Tributos') || (isAccount(row, 'Impostos') && !isPis && !isCofins && !isIss && !isIrrf && !isCsll)) bucket.otherTaxes += row.valor;
+    if (isAccount(row, 'Receitas Financeiras')) bucket.financialRevenue += row.valor;
+    if (isAccount(row, 'Despesas Financeiras')) bucket.financialExpense += row.valor;
+    if (isAccount(row, 'IRPJ') || isCategory(row, 'IRPJ') || isIrrf) bucket.irpj += row.valor;
+    if (isCategory(row, 'CSLL (Serviço)')) bucket.csll += row.valor;
+    if ((isAccount(row, 'CSLL') || isCategory(row, 'CSLL')) && !isCategory(row, 'CSLL (Serviço)')) bucket.csll += row.valor;
+  }
+
+  for (const bucket of byPeriod.values()) {
+    bucket.taxes = bucket.pis + bucket.cofins + bucket.iss + bucket.revenueDeductions;
+    bucket.netRevenue = bucket.gross + bucket.taxes;
+    bucket.costsDeductions = bucket.serviceCosts + bucket.otherRevenue;
+    bucket.contributionMargin = bucket.netRevenue + bucket.costsDeductions;
+    bucket.expenses = bucket.admin + bucket.people + bucket.salesMarketing + bucket.otherTaxes;
+    bucket.ebitda = bucket.contributionMargin + bucket.expenses;
+    bucket.ebit = bucket.ebitda + bucket.depreciation;
+    bucket.financialResult = bucket.financialRevenue + bucket.financialExpense;
+    bucket.ebt = bucket.ebit + bucket.financialResult;
+    bucket.resultTaxes = bucket.irpj + bucket.csll;
+    bucket.preTax = bucket.ebt;
+    bucket.netResult = bucket.ebt + bucket.resultTaxes;
+  }
+
+  const value = key => new Map(bucketPeriods.map(period => [period, byPeriod.get(period)[key] || 0]));
+  const ratio = (key, absolute = false) => new Map(bucketPeriods.map(period => {
+    const bucket = byPeriod.get(period);
+    const amount = bucket[key] || 0;
+    return [period, bucket.netRevenue ? (absolute ? Math.abs(amount) : amount) / bucket.netRevenue : null];
+  }));
+  const valuesFromRows = sourceRows => new Map(bucketPeriods.map(period => [
+    period,
+    sourceRows.filter(row => row.periodo === period).reduce((sum, row) => sum + row.valor, 0),
+  ]));
+  const shareFromValues = (values, absolute = false) => new Map(bucketPeriods.map(period => {
+    const bucket = byPeriod.get(period);
+    const amount = values.get(period) || 0;
+    return [period, bucket.netRevenue ? (absolute ? Math.abs(amount) : amount) / bucket.netRevenue : null];
+  }));
+  const cleanDreLabel = value => {
+    const text = String(value || '').trim().replace(/\*+/g, '').replace(/\s+/g, ' ');
+    return text && text !== 'N/D' ? text : '';
+  };
+  const categoryLabel = row => {
+    const category = cleanDreLabel(row.categoria);
+    if (category) return category;
+    const detail = cleanDreLabel(row.detalhe);
+    if (detail) return detail;
+    const client = cleanDreLabel(clientNameFromRow(row));
+    return client || 'Detalhe nao informado';
+  };
+  const detailLabel = row => {
+    const detail = cleanDreLabel(row.detalhe);
+    if (detail) return detail;
+    const client = cleanDreLabel(clientNameFromRow(row));
+    return client || 'Detalhe nao informado';
+  };
+  const safeId = value => normalizeText(value).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'item';
+  const detailChildren = (parentId, predicate, absolute = false) => {
+    const groups = new Map();
+    for (const row of rows) {
+      if (!bucketPeriods.includes(row.periodo) || !predicate(row)) continue;
+      const name = categoryLabel(row);
+      if (!groups.has(name)) groups.set(name, []);
+      groups.get(name).push(row);
+    }
+    return [...groups.entries()]
+      .map(([name, sourceRows], index) => {
+        const values = valuesFromRows(sourceRows);
+        const detailGroups = new Map();
+        for (const row of sourceRows) {
+          const detail = detailLabel(row);
+          if (!detail || detail === name) continue;
+          if (!detailGroups.has(detail)) detailGroups.set(detail, []);
+          detailGroups.get(detail).push(row);
+        }
+        const children = [...detailGroups.entries()]
+          .map(([detail, detailRows], detailIndex) => {
+            const detailValues = valuesFromRows(detailRows);
+            return {
+              id: `${parentId}-${safeId(name)}-detail-${detailIndex}`,
+              name: detail,
+              type: 'money',
+              kind: 'detail',
+              values: detailValues,
+              share: shareFromValues(detailValues, absolute),
+            };
+          })
+          .filter(line => Math.abs(lineTotal(line, periods)) > 0.005)
+          .sort((a, b) => Math.abs(lineTotal(b, periods)) - Math.abs(lineTotal(a, periods)));
+        return {
+          id: `${parentId}-${safeId(name)}-${index}`,
+          name,
+          type: 'money',
+          kind: children.length ? 'drill' : 'detail',
+          values,
+          share: shareFromValues(values, absolute),
+          children,
+        };
+      })
+      .filter(line => Math.abs(lineTotal(line, periods)) > 0.005)
+      .sort((a, b) => Math.abs(lineTotal(b, periods)) - Math.abs(lineTotal(a, periods)));
+  };
+  const drillLine = (id, name, key, absolute, predicate) => ({
+    id,
+    name,
+    type: 'money',
+    kind: 'drill',
+    values: value(key),
+    share: ratio(key, absolute),
+    children: detailChildren(id, predicate, absolute),
+  });
+  const lines = [
+    { id: 'gross', name: 'R$ Receita Bruta', type: 'money', kind: 'total', values: value('gross'), share: ratio('gross') },
+    { id: 'taxes', name: '(-) R$ Impostos', type: 'money', kind: 'total', values: value('taxes'), share: ratio('taxes', true), children: [
+      { name: 'R$ PIS', type: 'money', values: value('pis'), share: ratio('pis', true) },
+      { name: 'R$ COFINS', type: 'money', values: value('cofins'), share: ratio('cofins', true) },
+      { name: 'R$ ISS', type: 'money', values: value('iss'), share: ratio('iss', true) },
+    ] },
+    { id: 'netRevenue', name: '(=) R$ Receita Líquida', type: 'money', kind: 'total', values: value('netRevenue'), share: ratio('netRevenue') },
+    { id: 'costs', name: '(-) R$ Custos + R$ Deduções da Receita', type: 'money', kind: 'total', values: value('costsDeductions'), share: ratio('costsDeductions', true), children: [
+      { name: 'R$ Custo dos Serviços Prestados', type: 'money', values: value('serviceCosts'), share: ratio('serviceCosts', true) },
+      { name: 'R$ Deduções da Receita', type: 'money', values: value('revenueDeductions'), share: ratio('revenueDeductions', true) },
+      { name: 'R$ Outras Receitas', type: 'money', values: value('otherRevenue'), share: ratio('otherRevenue') },
+    ] },
+    { id: 'contributionMargin', name: '(=) R$ Margem de Contribuição', type: 'money', kind: 'total', values: value('contributionMargin'), share: ratio('contributionMargin') },
+    { id: 'admin', name: '(-) R$ Despesas Administrativas', type: 'money', kind: 'total', values: value('admin'), share: ratio('admin', true) },
+    { id: 'people', name: '(-) R$ Despesas com Pessoal', type: 'money', kind: 'total', values: value('people'), share: ratio('people', true) },
+    { id: 'salesMarketing', name: '(-) R$ Despesas de Vendas e Marketing', type: 'money', kind: 'total', values: value('salesMarketing'), share: ratio('salesMarketing', true) },
+    { id: 'otherTaxes', name: '(-) R$ Outros Tributos', type: 'money', kind: 'total', values: value('otherTaxes'), share: ratio('otherTaxes', true) },
+    { id: 'ebitda', name: '(=) R$ EBITDA antes de Depreciações', type: 'money', kind: 'total', values: value('ebitda'), share: ratio('ebitda') },
+    { id: 'depreciation', name: '(-) R$ Depreciações', type: 'money', kind: 'total', values: value('depreciation'), share: ratio('depreciation', true) },
+    { id: 'financialRevenue', name: '(+) R$ Receitas Financeiras', type: 'money', kind: 'total', values: value('financialRevenue'), share: ratio('financialRevenue') },
+    { id: 'financialExpense', name: '(-) R$ Despesas Financeiras', type: 'money', kind: 'total', values: value('financialExpense'), share: ratio('financialExpense', true) },
+    { id: 'preTax', name: '(=) R$ Resultado Antes dos Impostos', type: 'money', kind: 'total', values: value('preTax'), share: ratio('preTax') },
+    { id: 'irpj', name: '(-) R$ IRPJ', type: 'money', kind: 'total', values: value('irpj'), share: ratio('irpj', true) },
+    { id: 'csll', name: '(-) R$ CSLL', type: 'money', kind: 'total', values: value('csll'), share: ratio('csll', true) },
+    { id: 'netResult', name: '(=) R$ Resultado Líquido', type: 'money', kind: 'total', values: value('netResult'), share: ratio('netResult') },
+  ];
+
+  const totalizerLines = [
+    { id: 'netRevenue', name: '(=) R$ Receita Líquida', type: 'money', kind: 'total', values: value('netRevenue'), share: ratio('netRevenue'), children: [
+      { name: 'R$ Receita Bruta', type: 'money', values: value('gross'), share: ratio('gross') },
+      { name: '(-) R$ Impostos', type: 'money', values: value('taxes'), share: ratio('taxes', true) },
+      { name: 'R$ PIS', type: 'money', level: 2, values: value('pis'), share: ratio('pis', true) },
+      { name: 'R$ COFINS', type: 'money', level: 2, values: value('cofins'), share: ratio('cofins', true) },
+      { name: 'R$ ISS', type: 'money', level: 2, values: value('iss'), share: ratio('iss', true) },
+    ] },
+    { id: 'contributionMargin', name: '(=) R$ Margem de Contribuição', type: 'money', kind: 'total', values: value('contributionMargin'), share: ratio('contributionMargin'), children: [
+      { name: '(=) R$ Receita Líquida', type: 'money', values: value('netRevenue'), share: ratio('netRevenue') },
+      { name: '(-) R$ Custos + R$ Deduções da Receita', type: 'money', values: value('costsDeductions'), share: ratio('costsDeductions', true) },
+      { name: 'R$ Custo dos Serviços Prestados', type: 'money', level: 2, values: value('serviceCosts'), share: ratio('serviceCosts', true) },
+      { name: 'R$ Deduções da Receita', type: 'money', level: 2, values: value('revenueDeductions'), share: ratio('revenueDeductions', true) },
+      { name: 'R$ Outras Receitas', type: 'money', level: 2, values: value('otherRevenue'), share: ratio('otherRevenue') },
+    ] },
+    { id: 'ebitda', name: '(=) R$ EBITDA antes de Depreciações', type: 'money', kind: 'total', values: value('ebitda'), share: ratio('ebitda'), children: [
+      { name: '(=) R$ Margem de Contribuição', type: 'money', values: value('contributionMargin'), share: ratio('contributionMargin') },
+      { name: '(-) R$ Despesas Administrativas', type: 'money', values: value('admin'), share: ratio('admin', true) },
+      { name: '(-) R$ Despesas com Pessoal', type: 'money', values: value('people'), share: ratio('people', true) },
+      { name: '(-) R$ Despesas de Vendas e Marketing', type: 'money', values: value('salesMarketing'), share: ratio('salesMarketing', true) },
+      { name: '(-) R$ Outros Tributos', type: 'money', values: value('otherTaxes'), share: ratio('otherTaxes', true) },
+    ] },
+    { id: 'preTax', name: '(=) R$ Resultado Antes dos Impostos', type: 'money', kind: 'total', values: value('preTax'), share: ratio('preTax'), children: [
+      { name: '(=) R$ EBITDA antes de Depreciações', type: 'money', values: value('ebitda'), share: ratio('ebitda') },
+      { name: '(-) R$ Depreciações', type: 'money', values: value('depreciation'), share: ratio('depreciation', true) },
+      { name: '(+) R$ Receitas Financeiras', type: 'money', values: value('financialRevenue'), share: ratio('financialRevenue') },
+      { name: '(-) R$ Despesas Financeiras', type: 'money', values: value('financialExpense'), share: ratio('financialExpense', true) },
+    ] },
+    { id: 'netResult', name: '(=) R$ Resultado Líquido', type: 'money', kind: 'total', values: value('netResult'), share: ratio('netResult'), children: [
+      { name: '(=) R$ Resultado Antes dos Impostos', type: 'money', values: value('preTax'), share: ratio('preTax') },
+      { name: '(-) R$ IRPJ', type: 'money', values: value('irpj'), share: ratio('irpj', true) },
+      { name: '(-) R$ CSLL', type: 'money', values: value('csll'), share: ratio('csll', true) },
+    ] },
+  ];
+
+  const finalLines = [
+    { id: 'gross', name: 'R$ Receita Bruta', type: 'money', kind: 'fixed', values: value('gross'), share: ratio('gross') },
+    { id: 'taxes', name: '(-) R$ Deducoes da Receita', type: 'money', kind: 'drill', values: value('taxes'), share: ratio('taxes', true), children: [
+      drillLine('taxes-pis', 'R$ PIS', 'pis', true, row => isCategory(row, 'PIS')),
+      drillLine('taxes-cofins', 'R$ COFINS', 'cofins', true, row => isCategory(row, 'COFINS')),
+      drillLine('taxes-iss', 'R$ ISS', 'iss', true, row => isIssRow(row)),
+      drillLine('taxes-revenue-deductions', 'R$ Deducoes de Receita', 'revenueDeductions', true, row => isAccount(row, 'Deduções de Receita')),
+    ] },
+    { id: 'netRevenue', name: '(=) R$ Receita Liquida', type: 'money', kind: 'fixed', values: value('netRevenue'), share: ratio('netRevenue') },
+    { id: 'costs', name: '(-) R$ Custos', type: 'money', kind: 'drill', values: value('costsDeductions'), share: ratio('costsDeductions', true), children: [
+      drillLine('costs-services', 'R$ Custos', 'serviceCosts', true, row => isAccount(row, 'Custo dos Serviços')),
+      drillLine('costs-other-revenue', 'R$ Outras Receitas', 'otherRevenue', false, row => isAccount(row, 'Outras Receitas')),
+    ] },
+    { id: 'contributionMargin', name: '(=) R$ Margem de Contribuicao', type: 'money', kind: 'fixed', values: value('contributionMargin'), share: ratio('contributionMargin') },
+    { id: 'expenses', name: '(-) R$ Despesas', type: 'money', kind: 'drill', values: value('expenses'), share: ratio('expenses', true), children: [
+      drillLine('expenses-admin', 'R$ Despesas Administrativas', 'admin', true, row => isAccount(row, 'Despesas Administrativas') && !isCategory(row, 'Depreciação')),
+      drillLine('expenses-people', 'R$ Despesas com Pessoal', 'people', true, row => isAccount(row, 'Despesas com Pessoal')),
+      drillLine('expenses-sales', 'R$ Despesas de Vendas e Marketing', 'salesMarketing', true, row => isAccount(row, 'Despesas de Vendas')),
+      drillLine('expenses-other-taxes', 'R$ Outros Tributos', 'otherTaxes', true, row => isAccount(row, 'Outros Tributos') || (isAccount(row, 'Impostos') && !isCategory(row, 'PIS') && !isCategory(row, 'COFINS') && !isIssRow(row) && !isIrrfRow(row) && !isCategory(row, 'CSLL'))),
+    ] },
+    { id: 'ebitda', name: '(=) R$ Ebitda', type: 'money', kind: 'fixed', values: value('ebitda'), share: ratio('ebitda') },
+    { id: 'depreciation', name: '(-) R$ Depreciacoes', type: 'money', kind: 'drill', values: value('depreciation'), share: ratio('depreciation', true), children: [
+      drillLine('depreciation-detail', 'R$ Depreciacao', 'depAdmin', true, row => isCategory(row, 'Depreciação')),
+    ] },
+    { id: 'ebit', name: '(=) R$ Ebit', type: 'money', kind: 'fixed', values: value('ebit'), share: ratio('ebit') },
+    { id: 'financialResult', name: '(-) Resultado Financeiro', type: 'money', kind: 'drill', values: value('financialResult'), share: ratio('financialResult'), children: [
+      drillLine('financial-revenue', '(+) R$ Receitas Financeiras', 'financialRevenue', false, row => isAccount(row, 'Receitas Financeiras')),
+      drillLine('financial-expense', '(-) R$ Despesas Financeiras', 'financialExpense', true, row => isAccount(row, 'Despesas Financeiras')),
+    ] },
+    { id: 'ebt', name: '(=) R$ EBT', type: 'money', kind: 'fixed', values: value('ebt'), share: ratio('ebt') },
+    { id: 'resultTaxes', name: '(-) R$ Impostos antes do Resultado', type: 'money', kind: 'drill', values: value('resultTaxes'), share: ratio('resultTaxes', true), children: [
+      drillLine('result-taxes-irpj', '(-) R$ IRPJ', 'irpj', true, row => isAccount(row, 'IRPJ') || isCategory(row, 'IRPJ') || isIrrfRow(row)),
+      drillLine('result-taxes-csll', '(-) R$ CSLL', 'csll', true, row => (isAccount(row, 'CSLL') || isCategory(row, 'CSLL'))),
+    ] },
+    { id: 'netResult', name: '(=) R$ Resultado Liquido', type: 'money', kind: 'fixed', values: value('netResult'), share: ratio('netResult') },
+  ];
+
+  return { periods, byPeriod, lines: finalLines };
+}
+
+function pctClass(value) {
+  if (!Number.isFinite(value) || Math.abs(value) < 0.0001) return 'value-flat';
+  return value >= 0 ? 'value-pos' : 'value-neg';
+}
+
+function fmtPct(value) {
+  if (!Number.isFinite(value)) return '-';
+  return PCT.format(value);
+}
+
+function fmtMoney(value) {
+  if (!Number.isFinite(value)) return '-';
+  return BRL.format(value / 1000);
+}
+
+function variation(current, previous) {
+  if (!Number.isFinite(previous) || Math.abs(previous) < 0.01) return null;
+  return (current - previous) / Math.abs(previous);
+}
+
+function lineTotal(line, periods) {
+  if (line.type === 'percent') return null;
+  return periods.reduce((sum, period) => sum + (line.values.get(period) || 0), 0);
+}
+
+function annualShare(line, periods, byPeriod) {
+  if (line.type === 'percent') return null;
+  const totalNetRevenue = periods.reduce((sum, period) => sum + (byPeriod.get(period)?.netRevenue || 0), 0);
+  const total = lineTotal(line, periods);
+  if (!totalNetRevenue || !Number.isFinite(total)) return null;
+  return Math.abs(total) / totalNetRevenue;
+}
+
+function formatDreCell(line, current, previous, share) {
+  if (!Number.isFinite(current) || Math.abs(current) < 0.005) return '';
+  const isPct = line.type === 'percent';
+  const main = isPct ? fmtPct(current) : fmtMoney(current);
+  let vs = '';
+  if (previous !== null && previous !== undefined) {
+    if (isPct) {
+      const diff = Number.isFinite(current) && Number.isFinite(previous) ? current - previous : null;
+      vs = Number.isFinite(diff) ? `<span class="dre-vs ${pctClass(diff)}">vs ${(diff * 100).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} p.p.</span>` : '<span class="dre-vs value-flat">vs -</span>';
+    } else {
+      const varPct = variation(current, previous);
+      vs = `<span class="dre-vs ${pctClass(varPct)}">vs ${fmtPct(varPct)}</span>`;
+    }
+  }
+  if (isPct) return `<span class="dre-main">${main}</span>${vs ? `<span class="dre-share">${vs}</span>` : ''}`;
+  const shareLine = Number.isFinite(share) ? `% RL ${fmtPct(share)}` : '% RL -';
+  const details = `<span class="dre-detail"><span class="dre-share">${shareLine}</span>${vs || ''}</span>`;
+  return `<span class="dre-main">${main}</span>${details}`;
+}
+
+function formatAnnualCell(line, periods, byPeriod) {
+  const total = lineTotal(line, periods);
+  if (!Number.isFinite(total) || Math.abs(total) < 0.005) return '';
+  const share = annualShare(line, periods, byPeriod);
+  const shareLine = Number.isFinite(share) ? `<span class="dre-detail"><span class="dre-share">% RL ${fmtPct(share)}</span></span>` : '';
+  return `<span class="dre-main"><span>${fmtMoney(total)}</span></span>${shareLine}`;
+}
+
+function renderKpis(rows) {
+  const dre = dreStructured(rows);
+  const buckets = [...dre.byPeriod.values()];
+  const netRevenue = buckets.reduce((sum, bucket) => sum + bucket.netRevenue, 0);
+  const contributionMargin = buckets.reduce((sum, bucket) => sum + bucket.contributionMargin, 0);
+  const costsExpenses = buckets.reduce((sum, bucket) => sum + Math.abs(bucket.costsDeductions) + Math.abs(bucket.expenses), 0);
+  const ebitda = buckets.reduce((sum, bucket) => sum + bucket.ebitda, 0);
+  const resultado = buckets.reduce((sum, bucket) => sum + bucket.netResult, 0);
+  const pct = value => netRevenue ? PCT.format(value / netRevenue) : '-';
+
+  $('kpiNetRevenue').textContent = fmtMoney(netRevenue);
+  $('kpiNetRevenueNote').textContent = 'Valores em R$ mil';
+  $('kpiContribution').textContent = fmtMoney(contributionMargin);
+  $('kpiContributionNote').textContent = `${pct(contributionMargin)} da RL`;
+  $('kpiCostsExpenses').textContent = fmtMoney(costsExpenses);
+  $('kpiCostsExpensesNote').textContent = `${pct(costsExpenses)} da RL`;
+  $('kpiEbitda').textContent = fmtMoney(ebitda);
+  $('kpiEbitdaNote').textContent = `${pct(ebitda)} da RL`;
+  $('kpiNetResult').textContent = fmtMoney(resultado);
+  $('kpiNetResultNote').textContent = `${resultado >= 0 ? 'positivo' : 'negativo'} no período`;
+}
+
+function chartScales(width, height, values) {
+  const max = Math.max(...values.map(v => Math.abs(v)), 1);
+  const pad = 26;
+  return { max, pad, w: width - pad * 2, h: height - pad * 2 };
+}
+
+function renderMonthlyChart(rows, targetId = 'monthlyChart') {
+  const dre = dreStructured(rows);
+  const useNetRevenue = targetId === 'evolutionMonthlyChart';
+  const revenueValue = bucket => useNetRevenue ? bucket.netRevenue : bucket.gross;
+  const data = dre.periods
+    .map(period => dre.byPeriod.get(period))
+    .filter(d => Math.abs(revenueValue(d)) > 0.01 || Math.abs(d.ebitda) > 0.01 || Math.abs(d.netResult) > 0.01);
+  const compactMode = targetId === 'evolutionMonthlyChart';
+  const width = 760, height = compactMode ? 230 : 260;
+  const { max, pad, w, h } = chartScales(width, height, data.flatMap(d => [revenueValue(d), d.ebitda, d.netResult]));
+  const top = compactMode ? 24 : 32;
+  const bottom = compactMode ? 30 : 40;
+  const zero = height - bottom;
+  const step = w / Math.max(data.length, 1);
+  const barW = Math.min(34, step / 2.8);
+  const ebitdaPoints = [];
+  const netPoints = [];
+  let bars = '';
+  let markers = '';
+  const scale = h - (compactMode ? 46 : 54);
+  const compactLabels = data.length > 6;
+  data.forEach((d, i) => {
+    const x = pad + i * step + step / 2;
+    const revenue = revenueValue(d);
+    const hasData = Math.abs(revenue) > 0.01 || Math.abs(d.ebitda) > 0.01 || Math.abs(d.netResult) > 0.01;
+    const grossH = Math.abs(revenue) / max * scale;
+    const yEbitda = zero - d.ebitda / max * scale;
+    const yNet = zero - d.netResult / max * scale;
+    ebitdaPoints.push(`${x},${yEbitda}`);
+    netPoints.push(`${x},${yNet}`);
+    if (hasData) {
+      bars += `<rect class="bar-pos" x="${x - barW / 2}" y="${zero - grossH}" width="${barW}" height="${grossH}" rx="6"></rect>`;
+      const labelY = Math.max(16, zero - grossH - 8);
+      bars += compactLabels
+        ? `<text x="${x + barW / 2 + 4}" y="${labelY}" transform="rotate(-90 ${x + barW / 2 + 4} ${labelY})" text-anchor="start" font-size="9.5" font-weight="850" fill="#33415f">${fmtMoney(revenue)}</text>`
+        : `<text x="${x}" y="${labelY}" text-anchor="middle" font-size="10" font-weight="800" fill="#33415f">${fmtMoney(revenue)}</text>`;
+      markers += `<circle cx="${x}" cy="${yEbitda}" r="4" fill="#0aa36f"></circle><circle cx="${x}" cy="${yNet}" r="4" fill="#7c3aed"></circle>`;
+    }
+    const periodY = height - 10;
+    bars += compactLabels
+      ? `<text x="${x}" y="${periodY}" transform="rotate(-45 ${x} ${periodY})" text-anchor="end" font-size="9.5" font-weight="750" fill="#63708d">${shortMonthLabel(d.periodo)}</text>`
+      : `<text x="${x}" y="${periodY}" text-anchor="middle" font-size="11" font-weight="750" fill="#63708d">${shortMonthLabel(d.periodo)}</text>`;
+  });
+  $(targetId).innerHTML = `<svg class="chart" viewBox="0 0 ${width} ${height}">
+    <line class="axis" x1="${pad}" x2="${width - pad}" y1="${zero}" y2="${zero}"></line>
+    <line class="axis" x1="${pad}" x2="${width - pad}" y1="${top}" y2="${top}"></line>
+    <text x="${pad}" y="${top - 10}" font-size="10" font-weight="750" fill="#63708d">Valores em R$ mil</text>
+    ${bars}
+    <polyline class="line" points="${ebitdaPoints.join(' ')}"></polyline>
+    <polyline class="line-net" points="${netPoints.join(' ')}"></polyline>
+    ${markers}
+  </svg>
+  <div class="chart-legend">
+    <span><i class="legend-swatch" style="background:#0d5be1"></i>${useNetRevenue ? 'Faturamento líquido' : 'Faturamento mensal'}</span>
+    <span><i class="legend-swatch" style="background:#0aa36f"></i>EBITDA</span>
+    <span><i class="legend-swatch" style="background:#7c3aed"></i>Resultado líquido</span>
+  </div>`;
+}
+
+function renderDonut(rows) {
+  const data = groupBy(rows, 'grupo').slice(0, 5);
+  const total = data.reduce((s, d) => s + Math.abs(d.valor), 0) || 1;
+  const colors = ['#0d5be1', '#0aa36f', '#f59e0b', '#7c3aed', '#0891b2'];
+  let offset = 25;
+  const circles = data.map((d, i) => {
+    const pct = Math.abs(d.valor) / total * 100;
+    const out = `<circle cx="96" cy="96" r="70" fill="none" stroke="${colors[i]}" stroke-width="24" stroke-dasharray="${pct} ${100 - pct}" stroke-dashoffset="${offset}" pathLength="100"></circle>`;
+    offset -= pct;
+    return out;
+  }).join('');
+  const legend = data.map((d, i) => `<div class="rank-row"><span class="rank-name">${escapeHtml(d.nome)}</span><strong class="${d.valor >= 0 ? 'value-pos' : 'value-neg'}">${BRL.format(d.valor)}</strong><div class="rank-track"><div class="rank-fill" style="width:${Math.abs(d.valor)/total*100}%;background:${colors[i]}"></div></div></div>`).join('');
+  $('composition').innerHTML = `<div style="display:grid;grid-template-columns:210px 1fr;gap:10px;align-items:center">
+    <svg viewBox="0 0 192 192" width="192" height="192">
+      <circle cx="96" cy="96" r="70" fill="none" stroke="#edf2fa" stroke-width="24"></circle>
+      ${circles}
+      <text x="96" y="91" text-anchor="middle" font-size="22" font-weight="900" fill="#07133f">${data.length}</text>
+      <text x="96" y="114" text-anchor="middle" font-size="11" font-weight="700" fill="#63708d">grupos</text>
+    </svg>
+    <div class="rank">${legend}</div>
+  </div>`;
+}
+
+function renderRank(id, rows, key, limit = 7) {
+  const data = groupBy(rows, key).slice(0, limit);
+  const max = Math.max(...data.map(d => Math.abs(d.valor)), 1);
+  $(id).innerHTML = data.map(d => `<div class="rank-row">
+    <span class="rank-name" title="${escapeHtml(d.nome)}">${escapeHtml(d.nome)}</span>
+    <strong class="${d.valor >= 0 ? 'value-pos' : 'value-neg'}">${BRL.format(d.valor)}</strong>
+    <div class="rank-track"><div class="rank-fill" style="width:${Math.abs(d.valor)/max*100}%;background:${d.valor >= 0 ? '#0aa36f' : '#e23b3b'}"></div></div>
+  </div>`).join('');
+}
+
+function renderAlerts(rows) {
+  const accounts = groupBy(rows, 'conta');
+  const worst = accounts.filter(d => d.valor < 0).slice(0, 4);
+  const best = accounts.filter(d => d.valor > 0).slice(0, 1);
+  const alerts = [
+    ...worst.map(item => ({ type: '!', color: '#e23b3b', title: item.nome, sub: `Impacto negativo de ${BRL.format(item.valor)}`, pill: 'atenção' })),
+    ...best.map(item => ({ type: '+', color: '#0aa36f', title: item.nome, sub: `Principal contribuição positiva: ${BRL.format(item.valor)}`, pill: 'destaque' })),
+  ].slice(0, 5);
+  $('alerts').innerHTML = alerts.map(a => `<div class="alert">
+    <div class="alert-dot" style="background:${a.color}">${a.type}</div>
+    <div><div class="alert-title">${escapeHtml(a.title)}</div><div class="alert-sub">${escapeHtml(a.sub)}</div></div>
+    <span class="pill">${a.pill}</span>
+  </div>`).join('');
+}
+
+function renderTable(rows, targetId = 'dreTable', prefix = 'main') {
+  const dre = dreStructured(rows);
+  const header = `<tr><th>Linha DRE</th>${dre.periods.map(period => `<th>${monthLabel(period)}</th>`).join('')}<th class="year-total">Total Ano</th></tr>`;
+  const rowHtml = (line, options = {}) => {
+    const drillId = `${prefix}-${line.id}`;
+    const cells = dre.periods.map((period) => {
+      const value = line.values.get(period) || 0;
+      const previous = line.values.get(previousPeriod(period));
+      const share = line.share ? line.share.get(period) : null;
+      return `<td class="dre-cell ${pctClass(value)}">${formatDreCell(line, value, previous, share)}</td>`;
+    }).join('');
+    const annual = `<td class="dre-cell year-total ${pctClass(lineTotal(line, dre.periods))}">${formatAnnualCell(line, dre.periods, dre.byPeriod)}</td>`;
+    const hasChildren = line.children && line.children.length;
+    const name = hasChildren
+      ? `<button class="drill-toggle" data-drill="${drillId}">${escapeHtml(line.name)}</button>`
+      : escapeHtml(line.name);
+    const rowClass = options.child
+      ? `child-row child-of-${options.parent} level-${options.level || 1}`
+      : (line.kind === 'fixed' ? 'total-row' : (line.kind === 'drill' ? 'drill-row' : (line.kind === 'metric' ? 'metric-row' : 'normal-row')));
+    return `<tr class="${rowClass}"><td>${name}</td>${cells}${annual}</tr>`;
+  };
+  const renderLine = (line, parentId = null, level = 0) => {
+    const current = rowHtml(line, parentId ? { child: true, parent: parentId, level } : {});
+    const children = (line.children || []).map(child => renderLine(child, `${prefix}-${line.id}`, level + 1)).join('');
+    return current + children;
+  };
+  const body = dre.lines.map(line => renderLine(line)).join('');
+  $(targetId).innerHTML = `<thead>${header}</thead><tbody>${body}</tbody>`;
+  const hideBranch = id => {
+    document.querySelectorAll(`.child-of-${id}`).forEach(row => {
+      row.classList.remove('visible');
+      const childButton = row.querySelector('[data-drill]');
+      if (childButton) {
+        childButton.classList.remove('open');
+        hideBranch(childButton.getAttribute('data-drill'));
+      }
+    });
+  };
+  $(targetId).querySelectorAll('[data-drill]').forEach(button => {
+    button.addEventListener('click', () => {
+      const id = button.getAttribute('data-drill');
+      const isOpening = !button.classList.contains('open');
+      button.classList.toggle('open', isOpening);
+      if (!isOpening) {
+        hideBranch(id);
+        return;
+      }
+      document.querySelectorAll(`.child-of-${id}`).forEach(row => row.classList.add('visible'));
+    });
+  });
+}
+
+function renderEvolutionInsights(rows) {
+  const months = monthAgg(rows).filter(item => state.period === 'all' || item.periodo === state.period);
+  const withMargin = months.map(item => ({
+    ...item,
+    net: item.receitas + item.saidas,
+    margin: item.receitas ? item.resultado / item.receitas : 0,
+  }));
+  const best = [...withMargin].sort((a, b) => b.resultado - a.resultado)[0] || {};
+  const worst = [...withMargin].sort((a, b) => a.resultado - b.resultado)[0] || {};
+  const changes = [];
+  for (let i = 1; i < withMargin.length; i++) {
+    const current = withMargin[i];
+    const previous = withMargin[i - 1];
+    changes.push({
+      label: `${monthLabel(previous.periodo)} ? ${monthLabel(current.periodo)}`,
+      resultChange: current.resultado - previous.resultado,
+      revenueChange: variation(current.receitas, previous.receitas),
+      outChange: variation(Math.abs(current.saidas), Math.abs(previous.saidas)),
+      marginChange: current.margin - previous.margin,
+    });
+  }
+  const bestChange = [...changes].sort((a, b) => b.resultChange - a.resultChange)[0] || {};
+  const worstChange = [...changes].sort((a, b) => a.resultChange - b.resultChange)[0] || {};
+
+  $('evolutionInsights').innerHTML = `<div class="insight-grid">
+    <div class="insight"><div class="insight-label">Melhor resultado</div><div class="insight-value value-pos">${best.periodo ? monthLabel(best.periodo) : '-'}</div><div class="insight-detail">${best.resultado !== undefined ? BRL.format(best.resultado) : '-'}</div></div>
+    <div class="insight"><div class="insight-label">Menor resultado</div><div class="insight-value value-neg">${worst.periodo ? monthLabel(worst.periodo) : '-'}</div><div class="insight-detail">${worst.resultado !== undefined ? BRL.format(worst.resultado) : '-'}</div></div>
+    <div class="insight"><div class="insight-label">Maior evolução</div><div class="insight-value ${pctClass(bestChange.resultChange || 0)}">${bestChange.label || '-'}</div><div class="insight-detail">${bestChange.resultChange !== undefined ? BRL.format(bestChange.resultChange) : '-'}</div></div>
+    <div class="insight"><div class="insight-label">Maior pressão</div><div class="insight-value ${pctClass(worstChange.resultChange || 0)}">${worstChange.label || '-'}</div><div class="insight-detail">${worstChange.resultChange !== undefined ? BRL.format(worstChange.resultChange) : '-'}</div></div>
+  </div>
+  <div class="evolution-list">
+    ${changes.map(change => `<div class="evolution-row">
+      <strong>${escapeHtml(change.label)}</strong>
+      <span class="${pctClass(change.resultChange)}">${BRL.format(change.resultChange)}</span>
+      <span class="${pctClass(change.revenueChange)}">Receita ${fmtPct(change.revenueChange)}</span>
+      <span class="${pctClass(-change.outChange)}">Saídas ${fmtPct(change.outChange)}</span>
+    </div>`).join('') || '<div class="footer-note">Selecione todos os períodos para ver a evolução mês a mês.</div>'}
+  </div>`;
+}
+
+function renderAccountSummary(rows) {
+  const data = groupBy(rows, 'conta').slice(0, 18);
+  $('dreRows').innerHTML = data.map(row => `<tr>
+    <td>${escapeHtml(row.nome)}</td>
+    <td class="${row.valor >= 0 ? 'value-pos' : 'value-neg'}">${BRL.format(row.valor)}</td>
+  </tr>`).join('');
+}
+
+function clientNameFromProject(project) {
+  return CLIENT_MAP[String(project || '').trim()] || 'Outros';
+}
+
+function clientRevenue(rows) {
+  const map = new Map();
+  for (const row of rows) {
+    if (!isAccount(row, 'Receita Bruta')) continue;
+    const client = clientNameFromRow(row);
+    map.set(client, (map.get(client) || 0) + row.valor);
+  }
+  return [...map.entries()]
+    .map(([nome, valor]) => ({ nome, valor }))
+    .filter(item => Math.abs(item.valor) > 0.01)
+    .sort((a, b) => b.valor - a.valor);
+}
+
+function renderClientPie(rows) {
+  const data = clientRevenue(rows);
+  const total = data.reduce((sum, item) => sum + item.valor, 0) || 1;
+  const colors = ['#0d5be1', '#0aa36f', '#f59e0b', '#7c3aed', '#0891b2', '#94a3b8'];
+  let offset = 25;
+  const arcs = data.map((item, i) => {
+    const pct = item.valor / total * 100;
+    const arc = `<circle cx="78" cy="78" r="52" fill="none" stroke="${colors[i % colors.length]}" stroke-width="22" stroke-dasharray="${pct} ${100 - pct}" stroke-dashoffset="${offset}" pathLength="100"></circle>`;
+    offset -= pct;
+    return arc;
+  }).join('');
+  const legend = data.map((item, i) => `<div class="legend-row">
+    <span class="legend-dot" style="background:${colors[i % colors.length]}"></span>
+    <span>${escapeHtml(item.nome)}</span>
+    <span class="sub">${fmtPct(item.valor / total)}</span>
+    <strong>${fmtMoney(item.valor)}</strong>
+  </div>`).join('');
+  $('clientPie').innerHTML = `<div class="visual-grid">
+    <div class="pie-wrap">
+      <svg viewBox="0 0 156 156" width="156" height="156">
+        <circle cx="78" cy="78" r="52" fill="none" stroke="#edf2fa" stroke-width="22"></circle>
+        ${arcs}
+        <text x="78" y="75" text-anchor="middle" font-size="14" font-weight="900" fill="#07133f">${fmtMoney(total)}</text>
+        <text x="78" y="96" text-anchor="middle" font-size="10" font-weight="750" fill="#63708d">R$ mil</text>
+      </svg>
+    </div>
+    <div class="legend-list">${legend}</div>
+  </div>`;
+}
+
+function renderClientCostExpenseTrend(rows) {
+  const allPeriods = yearPeriods();
+  const colors = ['#0d5be1', '#0aa36f', '#f59e0b', '#7c3aed', '#0891b2', '#64748b'];
+  const revenueByClient = new Map();
+  const costsByClient = new Map();
+  const expensesByClient = new Map();
+
+  const addClientPeriodValue = (target, client, period, value) => {
+    if (!target.has(client)) target.set(client, new Map(allPeriods.map(item => [item, 0])));
+    target.get(client).set(period, target.get(client).get(period) + value);
+  };
+
+  for (const row of rows) {
+    if (!allPeriods.includes(row.periodo)) continue;
+    const client = clientNameFromRow(row);
+    if (isAccount(row, 'Receita Bruta')) {
+      addClientPeriodValue(revenueByClient, client, row.periodo, row.valor);
+    }
+    if (isAccount(row, 'Custo dos Servicos') || isAccount(row, 'Outras Receitas')) {
+      addClientPeriodValue(costsByClient, client, row.periodo, Math.abs(row.valor));
+    }
+    if (
+      isAccount(row, 'Despesas Administrativas') ||
+      isAccount(row, 'Despesas com Pessoal') ||
+      isAccount(row, 'Despesas de Vendas') ||
+      isAccount(row, 'Outros Tributos')
+    ) {
+      addClientPeriodValue(expensesByClient, client, row.periodo, Math.abs(row.valor));
+    }
+  }
+
+  const toTopClientSeries = source => [...source.entries()]
+    .map(([name, values]) => ({ name, values, total: allPeriods.reduce((sum, period) => sum + values.get(period), 0) }))
+    .filter(series => series.total > 0)
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 5);
+
+  const revenueSeries = toTopClientSeries(revenueByClient).map((series, index) => ({ ...series, color: colors[index % colors.length], dashed: false }));
+  const costSeries = toTopClientSeries(costsByClient).map((series, index) => ({ ...series, color: colors[index % colors.length], dashed: false }));
+  const expenseSeries = toTopClientSeries(expensesByClient).map((series, index) => ({ ...series, color: colors[index % colors.length], dashed: false }));
+  renderTrendCard('clientRevenueTrendChart', revenueSeries);
+  renderTrendCard('costTrendChart', costSeries);
+  renderTrendCard('expenseTrendChart', expenseSeries);
+}
+
+function renderTrendCard(targetId, allSeries, unitLabel = 'Valores em R$ mil') {
+  if (!$(targetId)) return;
+  const allPeriods = yearPeriods();
+  const periods = allPeriods.filter(period => allSeries.some(series => (series.values.get(period) || 0) > 0.01));
+
+  const width = 360, height = 230;
+  const pad = 30;
+  const bottom = 34;
+  const top = 30;
+  const plotW = width - pad * 2;
+  const plotH = height - top - bottom;
+  const max = Math.max(...allSeries.flatMap(series => periods.map(period => series.values.get(period) || 0)), 1);
+  const xFor = index => pad + (plotW / Math.max(periods.length - 1, 1)) * index;
+  const yFor = value => top + plotH - (value / max) * plotH;
+  const compactPeriodLabels = periods.length > 6;
+  const wideTrendCards = document.body.classList.contains('wide-trend-cards');
+  const labelStep = periods.length > 8 && !wideTrendCards ? 2 : 1;
+  const lines = allSeries.map(series => {
+    const points = periods.map((period, index) => `${xFor(index)},${yFor(series.values.get(period) || 0)}`).join(' ');
+    const markers = periods.map((period, index) => {
+      const value = series.values.get(period) || 0;
+      return value > 0 ? `<circle cx="${xFor(index)}" cy="${yFor(value)}" r="3.5" fill="${series.color}"></circle>` : '';
+    }).join('');
+    return `<polyline class="trend-line${series.dashed ? ' dashed' : ''}" points="${points}" stroke="${series.color}"></polyline>${markers}`;
+  }).join('');
+  const labels = periods.map((period, index) => {
+    if (compactPeriodLabels && index % labelStep !== 0 && index !== periods.length - 1) return '';
+    const x = xFor(index);
+    const y = height - 10;
+    return compactPeriodLabels
+      ? `<text x="${x}" y="${y}" text-anchor="middle" font-size="8.5" font-weight="750" fill="#63708d">${shortMonthLabel(period)}</text>`
+      : `<text x="${x}" y="${y}" text-anchor="middle" font-size="11" font-weight="750" fill="#63708d">${shortMonthLabel(period)}</text>`;
+  }).join('');
+  const legendSeries = compactPeriodLabels && !wideTrendCards ? allSeries.slice(0, 4) : allSeries;
+  const legend = legendSeries.map(series => `<span><i class="legend-swatch" style="background:${series.color}"></i>${escapeHtml(series.name)}</span>`).join('');
+
+  $(targetId).innerHTML = `<svg class="chart" viewBox="0 0 ${width} ${height}">
+    <line class="axis" x1="${pad}" x2="${width - pad}" y1="${top + plotH}" y2="${top + plotH}"></line>
+    <line class="axis" x1="${pad}" x2="${width - pad}" y1="${top}" y2="${top}"></line>
+    <text x="${pad}" y="${top - 10}" font-size="10" font-weight="750" fill="#63708d">${escapeHtml(unitLabel)}</text>
+    ${lines}
+    ${labels}
+  </svg>
+  <div class="chart-legend">${legend}</div>`;
+}
+
+function renderStackedClientBars(targetId, allSeries) {
+  if (!$(targetId)) return;
+  const allPeriods = yearPeriods();
+  const periods = allPeriods.filter(period => allSeries.some(series => Math.abs(series.values.get(period) || 0) > 0.01));
+  if (!periods.length || !allSeries.length) {
+    $(targetId).innerHTML = '<div class="footer-note">Sem dados para o período selecionado.</div>';
+    return;
+  }
+
+  const compactMode = targetId === 'evolutionClientChart';
+  const width = 540, height = compactMode ? 238 : 270;
+  const left = 42, right = 142, top = compactMode ? 24 : 30, bottom = compactMode ? 34 : 44;
+  const plotW = width - left - right;
+  const plotH = height - top - bottom;
+  const monthTotals = periods.map(period => allSeries.reduce((sum, series) => sum + Math.max(series.values.get(period) || 0, 0), 0));
+  const max = Math.max(...monthTotals, 1);
+  const slot = plotW / periods.length;
+  const barW = Math.min(34, slot * 0.56);
+  const yFor = value => top + plotH - (value / max) * plotH;
+  const compactLabels = periods.length > 6;
+  const gridValues = [0, max / 2, max];
+  const grid = gridValues.map(value => {
+    const y = yFor(value);
+    return `<line class="axis" x1="${left}" x2="${left + plotW}" y1="${y}" y2="${y}"></line>
+      <text x="${left - 8}" y="${y + 4}" text-anchor="end" font-size="10" font-weight="700" fill="#63708d">${value ? fmtMoney(value).replace('R$ ', '') : '0'}</text>`;
+  }).join('');
+
+  const bars = periods.map((period, index) => {
+    const x = left + slot * index + (slot - barW) / 2;
+    let y = top + plotH;
+    const segments = allSeries.map(series => {
+      const value = Math.max(series.values.get(period) || 0, 0);
+      if (value <= 0.01) return '';
+      const h = Math.max((value / max) * plotH, 1.5);
+      y -= h;
+      return `<rect x="${x}" y="${y}" width="${barW}" height="${h}" fill="${series.color}"></rect>`;
+    }).join('');
+    const total = monthTotals[index];
+    const labelY = Math.max(14, yFor(total) - 8);
+    const labelX = x + barW / 2 + (compactLabels ? barW / 2 + 4 : 0);
+    const label = fmtMoney(total).replace('R$ ', '');
+    const periodX = x + barW / 2;
+    const periodY = height - 14;
+    return `${segments}
+      ${compactLabels
+        ? `<text x="${labelX}" y="${labelY}" transform="rotate(-90 ${labelX} ${labelY})" text-anchor="start" font-size="9.5" font-weight="850" fill="#061a46">${label}</text>`
+        : `<text x="${x + barW / 2}" y="${labelY}" text-anchor="middle" font-size="10" font-weight="850" fill="#061a46">${label}</text>`}
+      ${compactLabels
+        ? `<text x="${periodX}" y="${periodY}" transform="rotate(-45 ${periodX} ${periodY})" text-anchor="end" font-size="9.5" font-weight="750" fill="#63708d">${shortMonthLabel(period)}</text>`
+        : `<text x="${periodX}" y="${periodY}" text-anchor="middle" font-size="10.5" font-weight="750" fill="#63708d">${shortMonthLabel(period)}</text>`}`;
+  }).join('');
+
+  const legendX = left + plotW + 24;
+  const legend = allSeries.map((series, index) => {
+    const y = top + 8 + index * (compactMode ? 20 : 25);
+    return `<circle cx="${legendX}" cy="${y}" r="5" fill="${series.color}"></circle>
+      <text x="${legendX + 14}" y="${y + 4}" font-size="${compactMode ? 9.5 : 10.5}" font-weight="850" fill="#061a46">${escapeHtml(series.name)}</text>`;
+  }).join('');
+
+  $(targetId).innerHTML = `<svg class="chart" viewBox="0 0 ${width} ${height}">
+    <text x="${left}" y="${top - 12}" font-size="10" font-weight="750" fill="#63708d">Valores em R$ mil</text>
+    ${grid}
+    ${bars}
+    ${legend}
+  </svg>`;
+}
+
+function renderClientBars(rows) {
+  const data = clientRevenue(rows);
+  const max = Math.max(...data.map(item => item.valor), 1);
+  $('clientBars').innerHTML = `<div class="client-bars">${data.map(item => `<div class="client-bar-row">
+    <span>${escapeHtml(item.nome)}</span>
+    <div class="client-bar-track"><div class="client-bar-fill" style="width:${item.valor / max * 100}%"></div></div>
+    <strong>${BRL.format(item.valor)}</strong>
+  </div>`).join('')}</div>
+  <div class="footer-note">Projetos considerados no mapeamento: AMAZON EDSP, AMAZON FM, MERCADO LIVRE LM, SHOPEE LM, BIMBO LM e REDEFRETE. Demais projetos aparecem como Outros.</div>`;
+}
+
+function renderMiniCards(targetId, cards) {
+  if (!$(targetId)) return;
+  $(targetId).innerHTML = cards.map(card => `<div class="mini-card" style="--accent:${card.color}">
+    <div class="mini-label">${escapeHtml(card.label)}</div>
+    <div class="mini-value ${card.className || ''}">${card.value}</div>
+    <div class="mini-note">${escapeHtml(card.note || '')}</div>
+  </div>`).join('');
+}
+
+function simpleTable(headers, rows) {
+  return `<table class="analysis-table"><thead><tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr></thead><tbody>
+    ${rows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}
+  </tbody></table>`;
+}
+
+function dreTotals(rows) {
+  const dre = dreStructured(rows);
+  const buckets = [...dre.byPeriod.values()];
+  return {
+    dre,
+    gross: buckets.reduce((sum, b) => sum + b.gross, 0),
+    netRevenue: buckets.reduce((sum, b) => sum + b.netRevenue, 0),
+    contributionMargin: buckets.reduce((sum, b) => sum + b.contributionMargin, 0),
+    costs: buckets.reduce((sum, b) => sum + b.costsDeductions, 0),
+    expenses: buckets.reduce((sum, b) => sum + b.expenses, 0),
+    ebitda: buckets.reduce((sum, b) => sum + b.ebitda, 0),
+    depreciation: buckets.reduce((sum, b) => sum + b.depreciation, 0),
+    netResult: buckets.reduce((sum, b) => sum + b.netResult, 0),
+  };
+}
+
+function periodBucketsWithMovement(rows) {
+  const dre = dreStructured(rows);
+  return dre.periods
+    .map(period => dre.byPeriod.get(period))
+    .filter(b => Math.abs(b.gross) > 0.01 || Math.abs(b.netResult) > 0.01 || Math.abs(b.ebitda) > 0.01);
+}
+
+function renderEvolutionModule(rows) {
+  const totals = dreTotals(rows);
+  const buckets = periodBucketsWithMovement(rows);
+  const last = buckets[buckets.length - 1];
+  const prev = buckets[buckets.length - 2];
+  const revenueChange = last && prev ? variation(last.netRevenue, prev.netRevenue) : null;
+  const resultChange = last && prev ? last.netResult - prev.netResult : 0;
+  const ebitdaMargin = totals.netRevenue ? totals.ebitda / totals.netRevenue : 0;
+  const netMargin = totals.netRevenue ? totals.netResult / totals.netRevenue : 0;
+  renderMiniCards('evolutionKpis', [
+    { label: 'Receita líquida YTD', value: fmtMoney(totals.netRevenue), note: `${fmtPct(revenueChange)} vs período anterior`, color: 'var(--blue)', className: pctClass(revenueChange) },
+    { label: 'EBITDA YTD', value: fmtMoney(totals.ebitda), note: `Margem EBITDA: ${fmtPct(ebitdaMargin)}`, color: 'var(--green)', className: pctClass(totals.ebitda) },
+    { label: 'Resultado líquido YTD', value: fmtMoney(totals.netResult), note: `Margem líquida: ${fmtPct(netMargin)}`, color: 'var(--red)', className: pctClass(totals.netResult) },
+    { label: 'Margem EBITDA YTD', value: fmtPct(ebitdaMargin), note: `${fmtPct(ebitdaMargin - netMargin)} p.p. vs margem líquida`, color: 'var(--teal)', className: pctClass(ebitdaMargin) },
+    { label: 'Variação vs período anterior', value: BRL.format(resultChange), note: last && prev ? `${monthLabel(prev.periodo)} vs ${monthLabel(last.periodo)}` : '-', color: 'var(--violet)', className: pctClass(resultChange) },
+  ]);
+  renderMonthlyChart(rows, 'evolutionMonthlyChart');
+
+  const comparisonRows = DASHBOARD_ROWS.filter(row => state.client === 'all' || clientNameFromRow(row) === state.client);
+  const referencePeriod = state.period !== 'all'
+    ? state.period
+    : (last?.periodo || `${state.year}-01`);
+  const referenceMonth = Number(referencePeriod.slice(5, 7)) || 1;
+  const currentYear = Number(state.year || referencePeriod.slice(0, 4));
+  const previousYear = currentYear - 1;
+  const currentQuarter = Math.ceil(referenceMonth / 3);
+  const currentSemester = referenceMonth <= 6 ? 1 : 2;
+  const elapsedQuarterPeriods = quarterPeriods(currentYear, currentQuarter).filter(period => Number(period.slice(5, 7)) <= referenceMonth);
+  const elapsedQuarterPrevious = elapsedQuarterPeriods.map(period => `${previousYear}-${period.slice(5, 7)}`);
+  const elapsedSemesterPeriods = semesterPeriods(currentYear, currentSemester).filter(period => Number(period.slice(5, 7)) <= referenceMonth);
+  const elapsedSemesterPrevious = elapsedSemesterPeriods.map(period => `${previousYear}-${period.slice(5, 7)}`);
+  const quarterCurrent = periodListBucket(comparisonRows, `${currentYear}-${currentQuarter}T`, elapsedQuarterPeriods);
+  const quarterPrevious = periodListBucket(comparisonRows, `${previousYear}-${currentQuarter}T`, elapsedQuarterPrevious);
+  const semesterCurrent = periodListBucket(comparisonRows, `${currentYear}-${currentSemester}S`, elapsedSemesterPeriods);
+  const semesterPrevious = periodListBucket(comparisonRows, `${previousYear}-${currentSemester}S`, elapsedSemesterPrevious);
+  const quarterElapsedLabel = periodListRangeLabel(elapsedQuarterPeriods);
+  const semesterElapsedLabel = periodListRangeLabel(elapsedSemesterPeriods);
+  const quarterSubtitle = elapsedQuarterPeriods.length === 3
+    ? `${currentQuarter}º Trimestre (${quarterRangeLabel(currentQuarter)})`
+    : `${currentQuarter}º Trimestre parcial (${quarterElapsedLabel})`;
+  const semesterSubtitle = elapsedSemesterPeriods.length === 6
+    ? `${currentSemester}º Semestre (${semesterRangeLabel(currentSemester)})`
+    : `${currentSemester}º Semestre parcial (${semesterElapsedLabel})`;
+  $('periodComparisons').innerHTML = `<div class="comparison-stack">
+    ${customComparisonHtml(comparisonRows)}
+    ${comparisonBoxHtml(`${currentQuarter}T/${currentYear} vs ${currentQuarter}T/${previousYear}`, quarterSubtitle, quarterCurrent, quarterPrevious)}
+    ${comparisonBoxHtml(`${currentSemester}S/${currentYear} vs ${currentSemester}S/${previousYear}`, semesterSubtitle, semesterCurrent, semesterPrevious)}
+  </div>`;
+
+  if (buckets.length >= 2) {
+    const currentPeriod = buckets[buckets.length - 1].periodo;
+    const previousPeriod = buckets[buckets.length - 2].periodo;
+    const curr = resultBridgeByPeriod(rows, currentPeriod);
+    const prevMap = resultBridgeByPeriod(rows, previousPeriod);
+    const bridgeLines = ['Receita Líquida', 'Custos', 'Despesas', 'Depreciação', 'Resultado Financeiro', 'Impostos antes do Resultado', 'Total'];
+    const changes = bridgeLines.map(name => {
+      const current = curr.get(name) || 0;
+      const previous = prevMap.get(name) || 0;
+      return { name, current, previous, change: current - previous, pct: variation(current, previous) };
+    });
+    $('evolutionDeviations').innerHTML = simpleTable(['Conta', `${monthLabel(currentPeriod)} (R$ mil)`, `${monthLabel(previousPeriod)} (R$ mil)`, 'Variação (R$ mil)', 'Variação (%)'], changes.map(item => [
+      escapeHtml(item.name),
+      fmtMoney(item.current),
+      fmtMoney(item.previous),
+      `<span class="${pctClass(item.change)}">${fmtMoney(item.change)}</span>`,
+      `<span class="${pctClass(item.pct)}">${fmtPct(item.pct)}</span>`,
+    ]));
+  } else {
+    $('evolutionDeviations').innerHTML = '<div class="footer-note">Inclua pelo menos dois períodos para ver variações.</div>';
+  }
+
+  const periods = yearPeriods();
+  const colors = ['#0d5be1', '#0aa36f', '#f59e0b', '#7c3aed', '#0891b2', '#64748b'];
+  const clientRevenueMap = new Map();
+  for (const row of rows) {
+    if (!isAccount(row, 'Receita Bruta')) continue;
+    const client = clientNameFromRow(row);
+    if (!clientRevenueMap.has(client)) clientRevenueMap.set(client, new Map(periods.map(period => [period, 0])));
+    clientRevenueMap.get(client).set(row.periodo, (clientRevenueMap.get(client).get(row.periodo) || 0) + row.valor);
+  }
+  const clientSeries = [...clientRevenueMap.entries()]
+    .map(([name, values]) => ({ name, values, total: periods.reduce((sum, period) => sum + (values.get(period) || 0), 0) }))
+    .filter(series => series.total > 0)
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 6)
+    .map((series, index) => ({ ...series, color: colors[index % colors.length] }));
+  renderStackedClientBars('evolutionClientChart', clientSeries);
+}
+
+function fillDreBucketFromRow(bucket, row) {
+  if (isAccount(row, 'Receita Bruta')) bucket.gross += row.valor;
+  const isPis = isCategory(row, 'PIS');
+  const isCofins = isCategory(row, 'COFINS');
+  const isIss = isIssRow(row);
+  const isIrrf = isIrrfRow(row);
+  const isCsll = isCategory(row, 'CSLL') || isAccount(row, 'CSLL');
+  if (isPis) bucket.pis += row.valor;
+  if (isCofins) bucket.cofins += row.valor;
+  if (isIss) bucket.iss += row.valor;
+  if (isAccount(row, 'Custo dos Serviços')) bucket.serviceCosts += row.valor;
+  if (isAccount(row, 'Deduções de Receita')) bucket.revenueDeductions += row.valor;
+  if (isAccount(row, 'Outras Receitas')) bucket.otherRevenue += row.valor;
+  if (isCategory(row, 'Depreciação')) bucket.depreciation += row.valor;
+  else if (isAccount(row, 'Despesas Administrativas')) bucket.admin += row.valor;
+  if (isAccount(row, 'Despesas com Pessoal')) bucket.people += row.valor;
+  if (isAccount(row, 'Despesas de Vendas')) bucket.salesMarketing += row.valor;
+  if (isAccount(row, 'Outros Tributos') || (isAccount(row, 'Impostos') && !isPis && !isCofins && !isIss && !isIrrf && !isCsll)) bucket.otherTaxes += row.valor;
+  if (isAccount(row, 'Receitas Financeiras')) bucket.financialRevenue += row.valor;
+  if (isAccount(row, 'Despesas Financeiras')) bucket.financialExpense += row.valor;
+  if (isAccount(row, 'IRPJ') || isCategory(row, 'IRPJ') || isIrrf) bucket.irpj += row.valor;
+  if (isCategory(row, 'CSLL (Serviço)')) bucket.csll += row.valor;
+  if ((isAccount(row, 'CSLL') || isCategory(row, 'CSLL')) && !isCategory(row, 'CSLL (Serviço)')) bucket.csll += row.valor;
+}
+
+function finalizeDreBucket(bucket) {
+  bucket.taxes = bucket.pis + bucket.cofins + bucket.iss + bucket.revenueDeductions;
+  bucket.netRevenue = bucket.gross + bucket.taxes;
+  bucket.costsDeductions = bucket.serviceCosts + bucket.otherRevenue;
+  bucket.contributionMargin = bucket.netRevenue + bucket.costsDeductions;
+  bucket.expenses = bucket.admin + bucket.people + bucket.salesMarketing + bucket.otherTaxes;
+  bucket.costsExpenses = Math.abs(bucket.costsDeductions) + Math.abs(bucket.expenses);
+  bucket.ebitda = bucket.contributionMargin + bucket.expenses;
+  bucket.ebit = bucket.ebitda + bucket.depreciation;
+  bucket.financialResult = bucket.financialRevenue + bucket.financialExpense;
+  bucket.ebt = bucket.ebit + bucket.financialResult;
+  bucket.resultTaxes = bucket.irpj + bucket.csll;
+  bucket.netResult = bucket.ebt + bucket.resultTaxes;
+  return bucket;
+}
+
+function quarterPeriods(year, quarter) {
+  const start = (quarter - 1) * 3 + 1;
+  return [start, start + 1, start + 2].map(month => `${year}-${String(month).padStart(2, '0')}`);
+}
+
+function quarterLabel(year, quarter) {
+  return `${quarter}T/${String(year).slice(2)}`;
+}
+
+function semesterPeriods(year, semester) {
+  const start = semester === 1 ? 1 : 7;
+  return Array.from({ length: 6 }, (_, index) => `${year}-${String(start + index).padStart(2, '0')}`);
+}
+
+function semesterLabel(year, semester) {
+  return `${semester}S/${String(year).slice(2)}`;
+}
+
+function monthShortName(month) {
+  return ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][month - 1] || '';
+}
+
+function quarterRangeLabel(quarter) {
+  return ['Jan-Mar', 'Abr-Jun', 'Jul-Set', 'Out-Dez'][quarter - 1] || '';
+}
+
+function semesterRangeLabel(semester) {
+  return semester === 1 ? 'Jan-Jun' : 'Jul-Dez';
+}
+
+function periodListRangeLabel(periods) {
+  const months = periods.map(period => Number(period.slice(5, 7))).filter(Boolean);
+  if (!months.length) return '';
+  const first = monthShortName(months[0]);
+  const last = monthShortName(months[months.length - 1]);
+  return first === last ? first : `${first}-${last}`;
+}
+
+function periodBucket(rows, year, key, periodsFor) {
+  const periods = new Set(periodsFor(year, key));
+  const bucket = createDreBucket(`${year}-${key}`);
+  for (const row of rows) {
+    if (!periods.has(row.periodo)) continue;
+    fillDreBucketFromRow(bucket, row);
+  }
+  return finalizeDreBucket(bucket);
+}
+
+function periodListBucket(rows, label, periodList) {
+  const periods = new Set(periodList);
+  const bucket = createDreBucket(label);
+  for (const row of rows) {
+    if (!periods.has(row.periodo)) continue;
+    fillDreBucketFromRow(bucket, row);
+  }
+  return finalizeDreBucket(bucket);
+}
+
+function quarterBucket(rows, year, quarter) {
+  return periodBucket(rows, year, quarter, quarterPeriods);
+}
+
+function semesterBucket(rows, year, semester) {
+  return periodBucket(rows, year, semester, semesterPeriods);
+}
+
+function periodRange(start, end) {
+  const periods = DASHBOARD_DATA.meta.periods.filter(period => period >= start && period <= end);
+  return periods.length ? periods : [start].filter(Boolean);
+}
+
+function comparisonBoxHtml(title, subtitle, current, previous, extraClass = '') {
+  const row = (label, key) => {
+    const delta = variation(current[key], previous[key]);
+    return `<div class="comparison-row"><span>${label}</span><strong>${fmtMoney(current[key])}</strong><span class="${pctClass(delta)}">${fmtPct(delta)}</span></div>`;
+  };
+  return `<div class="comparison-box ${extraClass}"><h3>${escapeHtml(title)} <span class="comparison-sub">${escapeHtml(subtitle)}</span></h3>${row('Receita Líquida', 'netRevenue')}${row('EBITDA', 'ebitda')}${row('Resultado Líquido', 'netResult')}</div>`;
+}
+
+function customComparisonHtml(rows) {
+  if (!state.customComparison) return '';
+  const basePeriods = periodRange(state.customComparison.baseStart, state.customComparison.baseEnd);
+  const comparePeriods = periodRange(state.customComparison.compareStart, state.customComparison.compareEnd);
+  const current = periodListBucket(rows, 'custom-base', basePeriods);
+  const previous = periodListBucket(rows, 'custom-compare', comparePeriods);
+  const title = `${monthLabel(basePeriods[0])} a ${monthLabel(basePeriods[basePeriods.length - 1])}`;
+  const subtitle = `vs ${monthLabel(comparePeriods[0])} a ${monthLabel(comparePeriods[comparePeriods.length - 1])}`;
+  return comparisonBoxHtml(title, subtitle, current, previous, 'comparison-custom-box');
+}
+
+function openCustomComparisonModal() {
+  const periods = DASHBOARD_DATA.meta.periods;
+  ['customBaseStart', 'customBaseEnd', 'customCompareStart', 'customCompareEnd'].forEach(id => fillSelect(id, periods, null, monthLabel));
+  const yearPeriodsList = periodsForYear(state.year);
+  const baseStart = state.customComparison?.baseStart || yearPeriodsList[0] || periods[0];
+  const baseEnd = state.customComparison?.baseEnd || yearPeriodsList[yearPeriodsList.length - 1] || periods[periods.length - 1];
+  const compareStart = state.customComparison?.compareStart || `${Number(state.year) - 1}-${baseStart.slice(5, 7)}`;
+  const compareEnd = state.customComparison?.compareEnd || `${Number(state.year) - 1}-${baseEnd.slice(5, 7)}`;
+  $('customBaseStart').value = baseStart;
+  $('customBaseEnd').value = baseEnd;
+  $('customCompareStart').value = periods.includes(compareStart) ? compareStart : periods[0];
+  $('customCompareEnd').value = periods.includes(compareEnd) ? compareEnd : periods[periods.length - 1];
+  $('customComparisonModal').classList.add('open');
+  $('customComparisonModal').setAttribute('aria-hidden', 'false');
+}
+
+function closeCustomComparisonModal() {
+  $('customComparisonModal').classList.remove('open');
+  $('customComparisonModal').setAttribute('aria-hidden', 'true');
+}
+
+function applyCustomComparison() {
+  const baseStart = $('customBaseStart').value;
+  const baseEnd = $('customBaseEnd').value;
+  const compareStart = $('customCompareStart').value;
+  const compareEnd = $('customCompareEnd').value;
+  state.customComparison = {
+    baseStart: baseStart <= baseEnd ? baseStart : baseEnd,
+    baseEnd: baseStart <= baseEnd ? baseEnd : baseStart,
+    compareStart: compareStart <= compareEnd ? compareStart : compareEnd,
+    compareEnd: compareStart <= compareEnd ? compareEnd : compareStart,
+  };
+  closeCustomComparisonModal();
+  render();
+}
+
+function clearCustomComparison() {
+  state.customComparison = null;
+  closeCustomComparisonModal();
+  render();
+}
+
+function indicatorRows() {
+  const currentYear = Number(state.year || dashboardYears()[0]);
+  const previousYear = currentYear - 1;
+  return DASHBOARD_ROWS.filter(row => {
+    const year = Number(String(row.periodo || '').slice(0, 4));
+    if (year !== currentYear && year !== previousYear) return false;
+    if (state.client !== 'all' && clientNameFromRow(row) !== state.client) return false;
+    return true;
+  });
+}
+
+function quarterlyComparisons(rows) {
+  const currentYear = Number(state.year || dashboardYears()[0]);
+  const previousYear = currentYear - 1;
+  return [1, 2, 3, 4].map(quarter => {
+    const previous = quarterBucket(rows, previousYear, quarter);
+    const current = quarterBucket(rows, currentYear, quarter);
+    return { period: quarter, quarter, currentYear, previousYear, current, previous };
+  }).filter(item => {
+    const values = [item.current.netRevenue, item.previous.netRevenue, item.current.ebitda, item.previous.ebitda, item.current.netResult, item.previous.netResult];
+    return values.some(value => Math.abs(value || 0) > 0.01);
+  });
+}
+
+function semesterComparisons(rows) {
+  const currentYear = Number(state.year || dashboardYears()[0]);
+  const previousYear = currentYear - 1;
+  return [1, 2].map(semester => {
+    const previous = semesterBucket(rows, previousYear, semester);
+    const current = semesterBucket(rows, currentYear, semester);
+    return { period: semester, currentYear, previousYear, current, previous };
+  }).filter(item => {
+    const values = [item.current.netRevenue, item.previous.netRevenue, item.current.ebitda, item.previous.ebitda, item.current.netResult, item.previous.netResult];
+    return values.some(value => Math.abs(value || 0) > 0.01);
+  });
+}
+
+function renderPeriodComparisonChart(targetId, comparisons, options) {
+  if (!$(targetId)) return;
+  if (!comparisons.length) {
+    $(targetId).innerHTML = `<div class="footer-note">Sem dados para comparar ${options.emptyLabel}.</div>`;
+    return;
+  }
+  const points = comparisons.flatMap(item => [
+    { label: options.shortLabel(item.previousYear, item.period), bucket: item.previous, year: item.previousYear, period: item.period, variant: 'previous' },
+    { label: options.shortLabel(item.currentYear, item.period), bucket: item.current, year: item.currentYear, period: item.period, variant: 'current' },
+  ]);
+  const width = 620, height = 252;
+  const left = 38, right = 12, top = 34, bottom = 50;
+  const plotW = width - left - right;
+  const plotH = height - top - bottom;
+  const chartValues = points.flatMap(item => [item.bucket.netRevenue, item.bucket.ebitda, item.bucket.netResult].map(value => value || 0));
+  const maxValue = Math.max(0, ...chartValues);
+  const minValue = Math.min(0, ...chartValues);
+  const range = Math.max(maxValue - minValue, 1);
+  const slot = plotW / points.length;
+  const barW = Math.min(30, slot * 0.4);
+  const yFor = value => top + ((maxValue - value) / range) * plotH;
+  const zero = yFor(0);
+  const xFor = index => left + slot * index + slot / 2;
+  const quarterBands = comparisons.map((item, index) => {
+    const xStart = left + index * slot * 2;
+    const xEnd = xStart + slot * 2;
+    const labelX = (xStart + xEnd) / 2;
+    const current = item.current.netRevenue || 0;
+    const previous = item.previous.netRevenue || 0;
+    const pct = variation(current, previous);
+    const divider = index > 0 ? `<line x1="${xStart}" x2="${xStart}" y1="${top - 4}" y2="${height - 28}" stroke="#dfe6f2" stroke-width="1"></line>` : '';
+    return `${divider}<text x="${labelX}" y="${height - 16}" text-anchor="middle" font-size="10" font-weight="900" fill="#33415f">${options.axisLabel(item.period)}</text>
+      <text x="${labelX}" y="${height - 4}" text-anchor="middle" font-size="9" font-weight="900" class="${pctClass(pct)}">${fmtPct(pct)}</text>`;
+  }).join('');
+  const bars = points.map((item, index) => {
+    const x = xFor(index);
+    const value = Math.max(item.bucket.netRevenue || 0, 0);
+    const h = Math.abs(yFor(value) - zero);
+    const tooltip = `${options.title}
+${options.groupLabel(item.period)} - ${item.year}
+Receita Líquida: ${fmtMoney(item.bucket.netRevenue || 0)}
+EBITDA: ${fmtMoney(item.bucket.ebitda || 0)} (${item.bucket.netRevenue ? fmtPct(item.bucket.ebitda / item.bucket.netRevenue) : '-'})
+Resultado Líquido: ${fmtMoney(item.bucket.netResult || 0)} (${item.bucket.netRevenue ? fmtPct(item.bucket.netResult / item.bucket.netRevenue) : '-'})`;
+    const color = item.variant === 'previous' ? '#c9d8ef' : '#0d5be1';
+    return `<rect x="${x - barW / 2}" y="${zero - h}" width="${barW}" height="${h}" rx="5" fill="${color}" data-chart-tooltip="${escapeHtml(tooltip)}"></rect>`;
+  }).join('');
+  const ebitdaPoints = points.map((item, index) => `${xFor(index)},${yFor(item.bucket.ebitda || 0)}`).join(' ');
+  const resultPoints = points.map((item, index) => `${xFor(index)},${yFor(item.bucket.netResult || 0)}`).join(' ');
+  const markers = points.map((item, index) => {
+    const x = xFor(index);
+    const ebitdaPct = item.bucket.netRevenue ? item.bucket.ebitda / item.bucket.netRevenue : null;
+    const resultPct = item.bucket.netRevenue ? item.bucket.netResult / item.bucket.netRevenue : null;
+    const eY = yFor(item.bucket.ebitda || 0);
+    const rY = yFor(item.bucket.netResult || 0);
+    return `<circle cx="${x}" cy="${yFor(item.bucket.ebitda || 0)}" r="4" fill="#0aa36f"></circle>
+      <text x="${x + 6}" y="${eY - 7}" font-size="8.5" font-weight="850" fill="#0aa36f">${ebitdaPct === null ? '-' : fmtPct(ebitdaPct)}</text>
+      <circle cx="${x}" cy="${yFor(item.bucket.netResult || 0)}" r="4" fill="#7c3aed"></circle>
+      <text x="${x + 6}" y="${rY + 13}" font-size="8.5" font-weight="850" fill="#7c3aed">${resultPct === null ? '-' : fmtPct(resultPct)}</text>`;
+  }).join('');
+  $(targetId).innerHTML = `<div class="period-chart-layout"><svg class="chart" viewBox="0 0 ${width} ${height}">
+    <line class="axis" x1="${left}" x2="${width - right}" y1="${zero}" y2="${zero}"></line>
+    <line class="axis" x1="${left}" x2="${width - right}" y1="${top}" y2="${top}"></line>
+    <text x="${left}" y="${top - 10}" font-size="10" font-weight="750" fill="#63708d">Valores em R$ mil</text>
+    ${quarterBands}
+    ${bars}
+    <polyline class="line" points="${ebitdaPoints}"></polyline>
+    <polyline class="line-net" points="${resultPoints}"></polyline>
+    ${markers}
+  </svg>
+  <div class="period-chart-side">
+    <span><i style="background:#0aa36f"></i>EBITDA</span>
+    <span><i style="background:#7c3aed"></i>Resultado</span>
+  </div></div>`;
+}
+
+function renderIndicatorMetricCard(item) {
+  const comparisons = item.comparisons;
+  if (!comparisons.length) return `<article class="indicator-card" style="--accent:${item.color}"><h3>${escapeHtml(item.label)}</h3><div class="footer-note">Sem dados.</div></article>`;
+  const width = 330, height = 150;
+  const left = 28, right = 8, top = 16, bottom = 30;
+  const plotW = width - left - right;
+  const plotH = height - top - bottom;
+  const values = comparisons.flatMap(comparison => [item.value(comparison.previous), item.value(comparison.current)]);
+  const max = Math.max(...values.map(value => Math.abs(value || 0)), 1);
+  const zero = top + plotH;
+  const groupW = plotW / comparisons.length;
+  const barW = Math.min(18, groupW * 0.22);
+  const bars = comparisons.map((comparison, index) => {
+    const previous = item.value(comparison.previous);
+    const current = item.value(comparison.current);
+    const delta = current - previous;
+    const pct = variation(current, previous);
+    const groupX = left + index * groupW + groupW / 2;
+    const previousTooltip = `${item.label}
+${comparison.period}T/${comparison.previousYear}
+Valor: ${fmtMoney(previous)}
+Base de comparação`;
+    const currentTooltip = `${item.label}
+${comparison.period}T/${comparison.currentYear}
+Valor: ${fmtMoney(current)}
+Vs ${comparison.previousYear}: ${fmtMoney(delta)}
+Variação: ${fmtPct(pct)}`;
+    const bar = (value, offset, color, tooltip) => {
+      const h = Math.max(Math.abs(value) / max * plotH, Math.abs(value) > 0.01 ? 1.5 : 0);
+      const y = value >= 0 ? zero - h : zero;
+      return `<rect x="${groupX + offset - barW / 2}" y="${y}" width="${barW}" height="${h}" rx="4" fill="${color}" data-chart-tooltip="${escapeHtml(tooltip)}"></rect>`;
+    };
+    return `${bar(previous, -barW * 0.7, '#c9d8ef', previousTooltip)}
+      ${bar(current, barW * 0.7, item.colorValue, currentTooltip)}
+      <text x="${groupX}" y="${height - 12}" text-anchor="middle" font-size="9" font-weight="850" fill="#63708d">${comparison.period}T</text>
+      <text x="${groupX}" y="${height - 1}" text-anchor="middle" font-size="8" font-weight="850" class="${pctClass(pct)}">${fmtPct(pct)}</text>`;
+  }).join('');
+  const latest = comparisons[comparisons.length - 1];
+  return `<article class="indicator-card" style="--accent:${item.color}">
+    <button class="zoom-card-btn" type="button" data-zoom-card title="Ampliar card"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path><path d="M11 8v6M8 11h6"></path></svg></button>
+    <h3>${escapeHtml(item.label)}</h3>
+    <svg class="chart" viewBox="0 0 ${width} ${height}">
+      <line class="axis" x1="${left}" x2="${width - right}" y1="${zero}" y2="${zero}"></line>
+      ${bars}
+    </svg>
+    <div class="indicator-note">
+      <div class="indicator-year-legend"><span><i style="background:#c9d8ef"></i>${latest.previousYear}</span><span><i style="background:${item.colorValue}"></i>${latest.currentYear}</span></div>
+    </div>
+  </article>`;
+}
+
+function renderIndicatorsModule() {
+  const rows = indicatorRows();
+  const comparisons = quarterlyComparisons(rows);
+  const semesters = semesterComparisons(rows);
+  renderPeriodComparisonChart('quarterComparisonChart', comparisons, {
+    title: 'Comparativo Trimestral',
+    emptyLabel: 'trimestres',
+    shortLabel: quarterLabel,
+    groupLabel: period => `${period}º Trim`,
+    axisLabel: period => `${period}T`,
+  });
+  renderPeriodComparisonChart('semesterComparisonChart', semesters, {
+    title: 'Comparativo Semestral',
+    emptyLabel: 'semestres',
+    shortLabel: semesterLabel,
+    groupLabel: period => `${period}º Sem`,
+    axisLabel: period => `${period}S`,
+  });
+  const cards = [
+    { label: 'Faturamento Líquido', color: 'var(--blue)', colorValue: '#0d5be1', comparisons, value: bucket => bucket.netRevenue || 0 },
+    { label: 'Custos + Despesas', color: 'var(--red)', colorValue: '#e23b3b', comparisons, value: bucket => bucket.costsExpenses || 0 },
+    { label: 'EBITDA', color: 'var(--green)', colorValue: '#0aa36f', comparisons, value: bucket => bucket.ebitda || 0 },
+    { label: 'Resultado Líquido', color: 'var(--violet)', colorValue: '#7c3aed', comparisons, value: bucket => bucket.netResult || 0 },
+  ];
+  $('quarterIndicatorCards').innerHTML = cards.map(renderIndicatorMetricCard).join('');
+}
+
+function openIndicatorZoom(card) {
+  const modal = $('indicatorZoomModal');
+  const content = $('indicatorZoomContent');
+  if (!modal || !content || !card) return;
+  const clone = card.cloneNode(true);
+  clone.querySelectorAll('[data-zoom-card]').forEach(button => button.remove());
+  clone.querySelectorAll('.note-card-btn').forEach(button => button.remove());
+  content.innerHTML = '';
+  content.appendChild(clone);
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeIndicatorZoom() {
+  const modal = $('indicatorZoomModal');
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+}
+
+function moveChartTooltip(event) {
+  const tooltip = $('chartTooltip');
+  if (!tooltip || !tooltip.classList.contains('open')) return;
+  const offset = 14;
+  const rect = tooltip.getBoundingClientRect();
+  let left = event.clientX + offset;
+  let top = event.clientY + offset;
+  if (left + rect.width > window.innerWidth - 8) left = event.clientX - rect.width - offset;
+  if (top + rect.height > window.innerHeight - 8) top = event.clientY - rect.height - offset;
+  tooltip.style.left = `${Math.max(8, left)}px`;
+  tooltip.style.top = `${Math.max(8, top)}px`;
+}
+
+function showChartTooltip(event, text) {
+  const tooltip = $('chartTooltip');
+  if (!tooltip) return;
+  tooltip.textContent = text;
+  tooltip.classList.add('open');
+  moveChartTooltip(event);
+}
+
+function hideChartTooltip() {
+  const tooltip = $('chartTooltip');
+  if (!tooltip) return;
+  tooltip.classList.remove('open');
+}
+
+function noteIconSvg() {
+  return '<svg viewBox="0 0 24 24"><path d="M6 4h12v16H6z"></path><path d="M9 8h6M9 12h6M9 16h4"></path></svg>';
+}
+
+function noteTitle(card) {
+  const titleNode = card.querySelector('h2, h3, .kpi-label, .mini-label, .alert-title');
+  return titleNode ? titleNode.textContent.trim() : 'Card';
+}
+
+function noteKey(card, index) {
+  const view = card.closest('.view')?.id || 'global';
+  const title = normalizeText(noteTitle(card)).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || `card-${index}`;
+  const accent = card.getAttribute('style') || '';
+  return `${view}|${title}|${index}|${accent}`;
+}
+
+function setupNoteButtons() {
+  document.querySelectorAll('[data-note-key]').forEach(card => {
+    const saved = DASHBOARD_NOTES[card.dataset.noteKey]?.note || '';
+    const button = card.querySelector('.note-card-btn');
+    if (button) button.classList.toggle('has-note', Boolean(saved.trim()));
+  });
+  const cards = [...document.querySelectorAll('.view.active article.card, .view.active article.panel, .view.active .mini-card, .view.active .comparison-box, .view.active article.indicator-card')];
+  cards.forEach((card, index) => {
+    if (card.closest('.zoom-content')) return;
+    if (!card.dataset.noteKey) card.dataset.noteKey = noteKey(card, index);
+    if (!card.dataset.noteTitle) card.dataset.noteTitle = noteTitle(card);
+    let button = card.querySelector(':scope > .note-card-btn');
+    if (!button) {
+      button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'note-card-btn';
+      button.setAttribute('aria-label', 'Editar nota explicativa');
+      button.setAttribute('title', 'Nota explicativa');
+      button.innerHTML = noteIconSvg();
+      card.prepend(button);
+    }
+    const saved = DASHBOARD_NOTES[card.dataset.noteKey]?.note || '';
+    button.classList.toggle('has-note', Boolean(saved.trim()));
+  });
+}
+
+function openNoteModal(card) {
+  if (!card) return;
+  activeNoteKey = card.dataset.noteKey;
+  activeNoteTitle = card.dataset.noteTitle || noteTitle(card);
+  $('noteTitle').textContent = 'Nota explicativa';
+  $('noteSubtitle').textContent = activeNoteTitle;
+  $('noteText').value = DASHBOARD_NOTES[activeNoteKey]?.note || '';
+  $('noteModal').classList.add('open');
+  $('noteModal').setAttribute('aria-hidden', 'false');
+  $('noteText').focus();
+}
+
+function closeNoteModal() {
+  const modal = $('noteModal');
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+}
+
+async function saveActiveNote() {
+  if (!activeNoteKey) return;
+  const button = $('noteSave');
+  const original = button.textContent;
+  button.disabled = true;
+  button.textContent = 'Salvando...';
+  try {
+    await persistDashboardNote(activeNoteKey, $('noteText').value);
+    closeNoteModal();
+    setupNoteButtons();
+  } catch (error) {
+    alert(error.message || 'Não foi possível salvar a nota.');
+  } finally {
+    button.disabled = false;
+    button.textContent = original;
+  }
+}
+
+function renderDrePreview(rows) {
+  const totals = dreTotals(rows);
+  const lines = [
+    ['Receita Líquida', totals.netRevenue, 'value-pos'],
+    ['Custos', totals.costs, 'value-neg'],
+    ['Margem de Contribuição', totals.contributionMargin, pctClass(totals.contributionMargin)],
+    ['Despesas', totals.expenses, 'value-neg'],
+    ['EBITDA', totals.ebitda, pctClass(totals.ebitda)],
+    ['Resultado Líquido', totals.netResult, pctClass(totals.netResult)],
+  ];
+  $('dreTable').innerHTML = `<thead><tr><th>Linha DRE</th><th>Total Ano</th><th>% RL</th></tr></thead><tbody>
+    ${lines.map(([name, value, className]) => `<tr>
+      <td>${escapeHtml(name)}</td>
+      <td class="dre-cell ${className}"><span class="dre-main">${fmtMoney(value)}</span></td>
+      <td class="dre-cell"><span class="dre-main">${totals.netRevenue ? fmtPct(Math.abs(value) / totals.netRevenue) : '-'}</span></td>
+    </tr>`).join('')}
+  </tbody>`;
+}
+
+function accountTotalsByPeriod(rows, period) {
+  const map = new Map();
+  for (const row of rows) {
+    if (row.periodo !== period) continue;
+    const key = row.conta || 'N/D';
+    map.set(key, (map.get(key) || 0) + row.valor);
+  }
+  return map;
+}
+
+function managerialTotalsByPeriod(rows, period) {
+  const bucket = createDreBucket(period);
+  for (const row of rows) {
+    if (row.periodo !== period) continue;
+    fillDreBucketFromRow(bucket, row);
+  }
+  finalizeDreBucket(bucket);
+  return new Map([
+    ['Receita Bruta', bucket.gross],
+    ['Deduções da Receita', bucket.taxes],
+    ['Receita Líquida', bucket.netRevenue],
+    ['Custos', bucket.costsDeductions],
+    ['Margem de Contribuição', bucket.contributionMargin],
+    ['Despesas', bucket.expenses],
+    ['EBITDA', bucket.ebitda],
+    ['Depreciações', bucket.depreciation],
+    ['Resultado Financeiro', bucket.financialResult],
+    ['EBT', bucket.ebt],
+    ['Impostos antes do Resultado', bucket.resultTaxes],
+    ['Resultado Líquido', bucket.netResult],
+  ]);
+}
+
+function resultBridgeByPeriod(rows, period) {
+  const bucket = createDreBucket(period);
+  for (const row of rows) {
+    if (row.periodo !== period) continue;
+    fillDreBucketFromRow(bucket, row);
+  }
+  finalizeDreBucket(bucket);
+  return new Map([
+    ['Receita Líquida', bucket.netRevenue],
+    ['Custos', bucket.costsDeductions],
+    ['Despesas', bucket.expenses],
+    ['Depreciação', bucket.depreciation],
+    ['Resultado Financeiro', bucket.financialResult],
+    ['Impostos antes do Resultado', bucket.resultTaxes],
+    ['Total', bucket.netResult],
+  ]);
+}
+
+function dreBucketForPeriods(periods) {
+  const bucket = createDreBucket(periods.join('|') || 'periodo');
+  const allowed = new Set(periods);
+  for (const row of DASHBOARD_ROWS) {
+    if (!allowed.has(row.periodo)) continue;
+    if (state.client !== 'all' && clientNameFromRow(row) !== state.client) continue;
+    fillDreBucketFromRow(bucket, row);
+  }
+  finalizeDreBucket(bucket);
+  return bucket;
+}
+
+function comparableYtdPeriods() {
+  const periods = periodsForYear(state.year);
+  if (state.period === 'all') return periods;
+  return periods.filter(period => period <= state.period);
+}
+
+function renderDreYtdComparison() {
+  const currentYear = Number(state.year);
+  const selectedPeriods = comparableYtdPeriods();
+  const previousPeriods = selectedPeriods.map(period => `${currentYear - 1}-${period.slice(5, 7)}`);
+  const allPeriods = new Set([...selectedPeriods, ...previousPeriods]);
+  const rows = DASHBOARD_ROWS.filter(row => {
+    if (!allPeriods.has(row.periodo)) return false;
+    if (state.client !== 'all' && clientNameFromRow(row) !== state.client) return false;
+    return true;
+  });
+  const dre = dreStructured(rows, selectedPeriods, previousPeriods);
+  const lastPeriod = selectedPeriods[selectedPeriods.length - 1] || `${currentYear}-01`;
+  const currentLabel = `${currentYear} YTD`;
+  const previousLabel = state.period === 'all'
+    ? `${currentYear - 1} comp.`
+    : `${currentYear - 1} comp. até ${monthLabel(`${currentYear - 1}-${lastPeriod.slice(5, 7)}`)}`;
+
+  const totalFor = (line, periods) => periods.reduce((sum, period) => sum + (line.values.get(period) || 0), 0);
+  const netFor = periods => periods.reduce((sum, period) => sum + (dre.byPeriod.get(period)?.netRevenue || 0), 0);
+  const currentNet = netFor(selectedPeriods);
+  const previousNet = netFor(previousPeriods);
+  const shareFor = (value, net, line) => {
+    if (!net || !Number.isFinite(value)) return null;
+    return (line.id === 'gross' || line.id === 'netRevenue' || line.id === 'contributionMargin' || line.id === 'ebitda' || line.id === 'ebit' || line.id === 'ebt' || line.id === 'netResult' || value >= 0)
+      ? value / net
+      : Math.abs(value) / net;
+  };
+  const formatComparisonCell = (line, value, net) => {
+    if (!Number.isFinite(value) || Math.abs(value) < 0.005) return '';
+    const share = shareFor(value, net, line);
+    const shareLine = Number.isFinite(share) ? `<span class="dre-detail"><span class="dre-share">% RL ${fmtPct(share)}</span></span>` : '';
+    return `<span class="dre-main">${fmtMoney(value)}</span>${shareLine}`;
+  };
+  const formatDeltaCell = (current, previous) => {
+    const delta = variation(current, previous);
+    return `<span class="dre-main">${fmtPct(delta)}</span>`;
+  };
+  const rowHtml = (line, options = {}) => {
+    const drillId = `ytd-${line.id}`;
+    const current = totalFor(line, selectedPeriods);
+    const previous = totalFor(line, previousPeriods);
+    const hasChildren = line.children && line.children.length;
+    const name = hasChildren
+      ? `<button class="drill-toggle" data-drill="${drillId}">${escapeHtml(line.name)}</button>`
+      : escapeHtml(line.name);
+    const rowClass = options.child
+      ? `child-row child-of-${options.parent} level-${options.level || 1}`
+      : (line.kind === 'fixed' ? 'total-row' : (line.kind === 'drill' ? 'drill-row' : 'normal-row'));
+    return `<tr class="${rowClass}">
+      <td>${name}</td>
+      <td class="dre-cell ${pctClass(current)}">${formatComparisonCell(line, current, currentNet)}</td>
+      <td class="dre-cell ${pctClass(previous)}">${formatComparisonCell(line, previous, previousNet) || '-'}</td>
+      <td class="dre-cell ${pctClass(variation(current, previous))}">${formatDeltaCell(current, previous)}</td>
+    </tr>`;
+  };
+  const renderLine = (line, parentId = null, level = 0) => {
+    const current = rowHtml(line, parentId ? { child: true, parent: parentId, level } : {});
+    const children = (line.children || []).map(child => renderLine(child, `ytd-${line.id}`, level + 1)).join('');
+    return current + children;
+  };
+  const body = dre.lines.map(line => renderLine(line)).join('');
+  $('dreYtdComparison').innerHTML = `<thead><tr>
+    <th>Linha DRE</th>
+    <th>${currentLabel}</th>
+    <th>${previousLabel}</th>
+    <th>Variação</th>
+  </tr></thead><tbody>${body}</tbody>`;
+
+  const hideBranch = id => {
+    document.querySelectorAll(`#dreYtdComparison .child-of-${id}`).forEach(row => {
+      row.classList.remove('visible');
+      const childButton = row.querySelector('[data-drill]');
+      if (childButton) {
+        childButton.classList.remove('open');
+        hideBranch(childButton.getAttribute('data-drill'));
+      }
+    });
+  };
+  $('dreYtdComparison').querySelectorAll('[data-drill]').forEach(button => {
+    button.addEventListener('click', () => {
+      const id = button.getAttribute('data-drill');
+      const isOpening = !button.classList.contains('open');
+      button.classList.toggle('open', isOpening);
+      if (!isOpening) {
+        hideBranch(id);
+        return;
+      }
+      document.querySelectorAll(`#dreYtdComparison .child-of-${id}`).forEach(row => row.classList.add('visible'));
+    });
+  });
+}
+
+function render() {
+  const rows = filteredRows();
+  const comparisonRows = filteredRows(true);
+  const baseTitle = VIEW_TITLES[state.view] || VIEW_TITLES.dashboard;
+  $('dashboardTitle').textContent = `${baseTitle} ${state.year || ''}`.trim();
+  document.querySelectorAll('.view').forEach(view => view.classList.toggle('active', view.id === `view-${state.view}`));
+  document.querySelectorAll('[data-view]').forEach(button => button.classList.toggle('active', button.getAttribute('data-view') === state.view));
+  document.body.classList.toggle('wide-trend-cards', state.view === 'dashboard' && yearPeriods().length > 8);
+
+  if (state.view === 'dashboard') {
+    renderKpis(rows);
+    renderMonthlyChart(rows);
+    renderClientPie(rows);
+    renderClientCostExpenseTrend(rows);
+    setupNoteButtons();
+    return;
+  }
+  if (state.view === 'dre') {
+    renderDreYtdComparison();
+    renderTable(comparisonRows, 'dreTableModule', 'module');
+    setupNoteButtons();
+    return;
+  }
+  if (state.view === 'evolution') {
+    renderEvolutionModule(rows);
+    setupNoteButtons();
+    return;
+  }
+  if (state.view === 'indicators') {
+    renderIndicatorsModule();
+    setupNoteButtons();
+    return;
+  }
+}
+
+async function refreshDashboardBase() {
+  const button = $('refreshBase');
+  button.disabled = true;
+  button.querySelector('span').textContent = 'Atualizando...';
+  try {
+    const response = await fetch('/refresh', { method: 'POST' });
+    if (!response.ok) throw new Error('refresh endpoint unavailable');
+  } catch (error) {
+    // Static hosting fallback: reloads the dashboard with a cache-busting query string.
+  } finally {
+    const target = `${window.location.pathname}?refresh=${Date.now()}`;
+    window.location.assign(target);
+  }
+}
+
+async function init() {
+  $('dashboardTitle').textContent = 'Carregando base de dados...';
+  try {
+    await loadDashboardData();
+    await loadDashboardNotes();
+    const years = dashboardYears();
+    state.year = years[0] || '2026';
+    fillSelect('yearFilter', years);
+    $('yearFilter').value = state.year;
+    fillSelect('periodFilter', periodsForYear(state.year), 'Todos', monthLabel);
+    fillSelect('clientFilter', dashboardClients(), 'Todos');
+    $('yearFilter').addEventListener('change', e => {
+      state.year = e.target.value;
+      state.period = 'all';
+      state.client = 'all';
+      fillSelect('periodFilter', periodsForYear(state.year), 'Todos', monthLabel);
+      fillSelect('clientFilter', dashboardClients(), 'Todos');
+      $('periodFilter').value = 'all';
+      $('clientFilter').value = 'all';
+      render();
+    });
+    $('periodFilter').addEventListener('change', e => { state.period = e.target.value; render(); });
+    $('clientFilter').addEventListener('change', e => { state.client = e.target.value; render(); });
+    $('refreshBase').addEventListener('click', refreshDashboardBase);
+    $('customComparisonOpen').addEventListener('click', openCustomComparisonModal);
+    $('customComparisonApply').addEventListener('click', applyCustomComparison);
+    $('customComparisonClear').addEventListener('click', clearCustomComparison);
+    $('customComparisonCancel').addEventListener('click', closeCustomComparisonModal);
+    $('noteSave').addEventListener('click', saveActiveNote);
+    $('noteCancel').addEventListener('click', closeNoteModal);
+    document.addEventListener('click', event => {
+      const noteButton = event.target.closest('.note-card-btn');
+      if (noteButton) {
+        openNoteModal(noteButton.closest('[data-note-key]'));
+        return;
+      }
+      const zoomButton = event.target.closest('[data-zoom-card]');
+      if (zoomButton) {
+        openIndicatorZoom(zoomButton.closest('.indicator-card'));
+        return;
+      }
+      if (event.target.id === 'indicatorZoomModal' || event.target.id === 'indicatorZoomClose') closeIndicatorZoom();
+      if (event.target.id === 'noteModal') closeNoteModal();
+      if (event.target.id === 'customComparisonModal') closeCustomComparisonModal();
+    });
+    document.addEventListener('mouseover', event => {
+      const target = event.target.closest('[data-chart-tooltip]');
+      if (target) showChartTooltip(event, target.getAttribute('data-chart-tooltip'));
+    });
+    document.addEventListener('mousemove', event => {
+      if (event.target.closest('[data-chart-tooltip]')) moveChartTooltip(event);
+    });
+    document.addEventListener('mouseout', event => {
+      if (event.target.closest('[data-chart-tooltip]')) hideChartTooltip();
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        closeIndicatorZoom();
+        closeNoteModal();
+        closeCustomComparisonModal();
+      }
+    });
+    document.querySelectorAll('[data-view]').forEach(button => {
+      button.addEventListener('click', () => {
+        state.view = button.getAttribute('data-view');
+        render();
+      });
+    });
+    render();
+  } catch (error) {
+    $('dashboardTitle').textContent = 'Erro ao carregar base de dados';
+    console.error(error);
+  }
+}
+
+init();
+</script>
+</body>
+</html>

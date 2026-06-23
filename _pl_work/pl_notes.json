@@ -1,0 +1,3 @@
+{
+  "unit-popup:Amazon > Amazon EDSP > Santa Maria / Uruguaiana": "Pelo Bid deveria ser 3200 pacotes por mes\n\nPelo Breakeven deveriamos estar carretando 4300.\n\nPorém a Amazon não tem esse volume de acordo com o BID\n\nO problema está na transferencia dos pacotes. pois pela nossa simulação deveria ser no D+2, consolidando o volume de 300 pacotes dia.\n\nMas na realidade está enviando todos os dias com uma média de carga de 90 pacotes a um custo de transferencia de R$ 1000,00 por dia.\n\nSe consolidassemos a carga, esse custo cairia pela metade, ou seja, a base já estaria no lucro."
+}

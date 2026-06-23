@@ -1,0 +1,576 @@
+{
+  "files": [
+    {
+      "arquivo": "Balancete e Conciliação 01_2026.xlsx",
+      "aba": "DRE_2025",
+      "linhas": 4943
+    },
+    {
+      "arquivo": "Balancete e Conciliação 02_2026.xlsx",
+      "aba": "DRE_2026",
+      "linhas": 4971
+    },
+    {
+      "arquivo": "Balancete e Conciliação 03_2026.xlsx",
+      "aba": "DRE_2026",
+      "linhas": 4835
+    },
+    {
+      "arquivo": "Balancete e Conciliação 04_2026.xlsx",
+      "aba": "DRE_2026",
+      "linhas": 5832
+    }
+  ],
+  "records": 20581,
+  "months": [
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04"
+  ],
+  "totals": {
+    "resultado_total": 1256696.462521,
+    "entradas_total": 26009339.399999,
+    "saidas_total": -24752642.937478
+  },
+  "by_month": [
+    {
+      "periodo": "2026-01",
+      "resultado": 978532.7687069945,
+      "receitas": 6939332.339998998,
+      "deducoes_custos_despesas": -5960799.571292017
+    },
+    {
+      "periodo": "2026-02",
+      "resultado": 211176.8060030135,
+      "receitas": 5835126.070000002,
+      "deducoes_custos_despesas": -5623949.263997002
+    },
+    {
+      "periodo": "2026-03",
+      "resultado": 437160.5607460095,
+      "receitas": 6908284.629999996,
+      "deducoes_custos_despesas": -6471124.069254
+    },
+    {
+      "periodo": "2026-04",
+      "resultado": -370173.6729349811,
+      "receitas": 6326596.359999998,
+      "deducoes_custos_despesas": -6696770.032935005
+    }
+  ],
+  "by_tipo": [
+    {
+      "nome": "1. Lucro Bruto",
+      "valor": 5130507.531163033
+    },
+    {
+      "nome": "2. Despesas",
+      "valor": -3873811.068641999
+    }
+  ],
+  "by_grupo": [
+    {
+      "nome": "01. Receita Líquida Operacional",
+      "valor": 22422440.16316402
+    },
+    {
+      "nome": "21. Custos",
+      "valor": -18194338.84099999
+    },
+    {
+      "nome": "11. Fixas",
+      "valor": -3873811.068641999
+    },
+    {
+      "nome": "11. Receita Líquida Indireta",
+      "valor": 902406.2089990005
+    }
+  ],
+  "by_conta": [
+    {
+      "nome": "01. Receita Bruta de Vendas",
+      "valor": 25106933.191000007
+    },
+    {
+      "nome": "02. Custo dos Serviços Prestados",
+      "valor": -18194338.84099999
+    },
+    {
+      "nome": "02. Impostos",
+      "valor": -2471456.8978360053
+    },
+    {
+      "nome": "02. Despesas Administrativas",
+      "valor": -1699183.5479999988
+    },
+    {
+      "nome": "01. Despesas com Pessoal",
+      "valor": -1098779.3399999999
+    },
+    {
+      "nome": "03. Despesas Financeiras",
+      "valor": -1017535.3906419999
+    },
+    {
+      "nome": "01. Outras Receitas",
+      "valor": 772553.3690000002
+    },
+    {
+      "nome": "03. Deduções de Receita",
+      "valor": -213036.12999999998
+    },
+    {
+      "nome": "02. Receitas Financeiras",
+      "valor": 129852.83999899996
+    },
+    {
+      "nome": "05. Outros Tributos",
+      "valor": -56312.78999999999
+    },
+    {
+      "nome": "04. Despesas de Vendas e Marketing",
+      "valor": -2000.0
+    }
+  ],
+  "top_receitas": [
+    {
+      "nome": "01. Receita Bruta de Vendas",
+      "valor": 25106933.191000007
+    },
+    {
+      "nome": "01. Outras Receitas",
+      "valor": 772553.3690000002
+    },
+    {
+      "nome": "02. Receitas Financeiras",
+      "valor": 129852.83999899996
+    },
+    {
+      "nome": "04. Despesas de Vendas e Marketing",
+      "valor": -2000.0
+    },
+    {
+      "nome": "05. Outros Tributos",
+      "valor": -56312.78999999999
+    },
+    {
+      "nome": "03. Deduções de Receita",
+      "valor": -213036.12999999998
+    },
+    {
+      "nome": "03. Despesas Financeiras",
+      "valor": -1017535.3906419999
+    },
+    {
+      "nome": "01. Despesas com Pessoal",
+      "valor": -1098779.3399999999
+    },
+    {
+      "nome": "02. Despesas Administrativas",
+      "valor": -1699183.5479999988
+    },
+    {
+      "nome": "02. Impostos",
+      "valor": -2471456.8978360053
+    }
+  ],
+  "top_despesas": [
+    {
+      "nome": "02. Custo dos Serviços Prestados",
+      "valor": -18194338.84099999
+    },
+    {
+      "nome": "02. Impostos",
+      "valor": -2471456.8978360053
+    },
+    {
+      "nome": "02. Despesas Administrativas",
+      "valor": -1699183.5479999988
+    },
+    {
+      "nome": "01. Despesas com Pessoal",
+      "valor": -1098779.3399999999
+    },
+    {
+      "nome": "03. Despesas Financeiras",
+      "valor": -1017535.3906419999
+    },
+    {
+      "nome": "03. Deduções de Receita",
+      "valor": -213036.12999999998
+    },
+    {
+      "nome": "05. Outros Tributos",
+      "valor": -56312.78999999999
+    },
+    {
+      "nome": "04. Despesas de Vendas e Marketing",
+      "valor": -2000.0
+    },
+    {
+      "nome": "02. Receitas Financeiras",
+      "valor": 129852.83999899996
+    },
+    {
+      "nome": "01. Outras Receitas",
+      "valor": 772553.3690000002
+    }
+  ],
+  "by_dept": [
+    {
+      "nome": "N/D",
+      "valor": 5579805.056719996
+    },
+    {
+      "nome": "Administracao",
+      "valor": -1665784.209999999
+    },
+    {
+      "nome": "Cotia",
+      "valor": -1444801.6759250013
+    },
+    {
+      "nome": "Financeiro",
+      "valor": -909326.4499999998
+    },
+    {
+      "nome": "Rio de Janeiro",
+      "valor": 818180.2534999995
+    },
+    {
+      "nome": "Zona Sul",
+      "valor": -767060.4697179996
+    },
+    {
+      "nome": "Zona Oeste",
+      "valor": -674412.6411749999
+    },
+    {
+      "nome": "Gravatai",
+      "valor": 474801.23803946585
+    },
+    {
+      "nome": "Novo Hamburgo",
+      "valor": 434961.71080000023
+    },
+    {
+      "nome": "Campo Grande-RJ",
+      "valor": -398606.54860000004
+    },
+    {
+      "nome": "Pelotas",
+      "valor": 387341.0117397198
+    },
+    {
+      "nome": "Embu Das Artes",
+      "valor": 385685.88839999994
+    },
+    {
+      "nome": "Canela",
+      "valor": 377059.0007999999
+    },
+    {
+      "nome": "Operacoes",
+      "valor": -365151.471
+    },
+    {
+      "nome": "Captacao",
+      "valor": -355112.70999999996
+    },
+    {
+      "nome": "Jaguare",
+      "valor": -340817.196091
+    },
+    {
+      "nome": "Santa Cruz do Sul",
+      "valor": 225993.8669999998
+    },
+    {
+      "nome": "Duque de Caxias",
+      "valor": -224340.5
+    },
+    {
+      "nome": "Contabilidade",
+      "valor": -223650.70000000004
+    },
+    {
+      "nome": "Criciuma",
+      "valor": 218237.2411143278
+    }
+  ],
+  "by_project": [
+    {
+      "nome": "REDEFRETE",
+      "valor": -4182092.2306419993
+    },
+    {
+      "nome": "AMAZON EDSP",
+      "valor": 2394642.1204990083
+    },
+    {
+      "nome": "AMAZON FM",
+      "valor": 1791840.9906989983
+    },
+    {
+      "nome": "MERCADO LIVRE LM",
+      "valor": 920914.4442649996
+    },
+    {
+      "nome": "SHOPEE LM",
+      "valor": 330345.4173000003
+    },
+    {
+      "nome": "AMAZON LM",
+      "valor": -50944.417
+    },
+    {
+      "nome": "N/D",
+      "valor": 46770.4744
+    },
+    {
+      "nome": "SHOPEE LH",
+      "valor": -36533.777
+    },
+    {
+      "nome": "AMAZON SD",
+      "valor": 27358.6
+    },
+    {
+      "nome": "BIMBO LM",
+      "valor": 25002.499999999967
+    },
+    {
+      "nome": "AMAZON",
+      "valor": -14000.0
+    },
+    {
+      "nome": "FAST SHOP",
+      "valor": 3998.62
+    },
+    {
+      "nome": "AGROPAD",
+      "valor": -606.28
+    }
+  ],
+  "by_empresa": [
+    {
+      "nome": "REDEFRETELOG - MATRIZ",
+      "valor": -5625846.255479007
+    },
+    {
+      "nome": "REDEFRETELOG ITAJAI",
+      "valor": 5135336.921500003
+    },
+    {
+      "nome": "REDEFRETELOG CASCAVEL",
+      "valor": 1098046.0080000001
+    },
+    {
+      "nome": "REDEFRETELOG FOZ DO IGUAÇU",
+      "valor": 647060.5285000001
+    },
+    {
+      "nome": "REDEFRETELOG - ITAJAI",
+      "valor": 2099.26
+    }
+  ],
+  "month_account": [
+    {
+      "periodo": "2026-01",
+      "contas": [
+        {
+          "nome": "01. Receita Bruta de Vendas",
+          "valor": 6366028.179999998
+        },
+        {
+          "nome": "02. Custo dos Serviços Prestados",
+          "valor": -4386130.314000003
+        },
+        {
+          "nome": "02. Impostos",
+          "valor": -588117.2272919996
+        },
+        {
+          "nome": "01. Outras Receitas",
+          "valor": 544774.72
+        },
+        {
+          "nome": "02. Despesas Administrativas",
+          "valor": -432363.74000000017
+        },
+        {
+          "nome": "01. Despesas com Pessoal",
+          "valor": -272239.48999999993
+        },
+        {
+          "nome": "03. Despesas Financeiras",
+          "valor": -194024.62000000002
+        },
+        {
+          "nome": "03. Deduções de Receita",
+          "valor": -82138.99999999999
+        },
+        {
+          "nome": "02. Receitas Financeiras",
+          "valor": 28529.439999000002
+        },
+        {
+          "nome": "05. Outros Tributos",
+          "valor": -5285.18
+        },
+        {
+          "nome": "04. Despesas de Vendas e Marketing",
+          "valor": -500.0
+        }
+      ]
+    },
+    {
+      "periodo": "2026-02",
+      "contas": [
+        {
+          "nome": "01. Receita Bruta de Vendas",
+          "valor": 5690946.161000001
+        },
+        {
+          "nome": "02. Custo dos Serviços Prestados",
+          "valor": -4061476.646999994
+        },
+        {
+          "nome": "02. Impostos",
+          "valor": -518304.2569970002
+        },
+        {
+          "nome": "02. Despesas Administrativas",
+          "valor": -392907.6900000003
+        },
+        {
+          "nome": "03. Despesas Financeiras",
+          "valor": -301757.81
+        },
+        {
+          "nome": "01. Despesas com Pessoal",
+          "valor": -280671.67
+        },
+        {
+          "nome": "01. Outras Receitas",
+          "valor": 113154.38899999998
+        },
+        {
+          "nome": "03. Deduções de Receita",
+          "valor": -49267.89999999999
+        },
+        {
+          "nome": "02. Receitas Financeiras",
+          "valor": 31025.52
+        },
+        {
+          "nome": "05. Outros Tributos",
+          "valor": -19063.29
+        },
+        {
+          "nome": "04. Despesas de Vendas e Marketing",
+          "valor": -500.0
+        }
+      ]
+    },
+    {
+      "periodo": "2026-03",
+      "contas": [
+        {
+          "nome": "01. Receita Bruta de Vendas",
+          "valor": 6771253.129999998
+        },
+        {
+          "nome": "02. Custo dos Serviços Prestados",
+          "valor": -4606886.8369999975
+        },
+        {
+          "nome": "02. Impostos",
+          "valor": -781132.6916120008
+        },
+        {
+          "nome": "02. Despesas Administrativas",
+          "valor": -414804.98000000004
+        },
+        {
+          "nome": "03. Despesas Financeiras",
+          "valor": -335311.57064199995
+        },
+        {
+          "nome": "01. Despesas com Pessoal",
+          "valor": -296353.91
+        },
+        {
+          "nome": "01. Outras Receitas",
+          "valor": 77352.58000000002
+        },
+        {
+          "nome": "02. Receitas Financeiras",
+          "valor": 59678.92
+        },
+        {
+          "nome": "03. Deduções de Receita",
+          "valor": -31040.27
+        },
+        {
+          "nome": "05. Outros Tributos",
+          "valor": -5093.8099999999995
+        },
+        {
+          "nome": "04. Despesas de Vendas e Marketing",
+          "valor": -500.0
+        }
+      ]
+    },
+    {
+      "periodo": "2026-04",
+      "contas": [
+        {
+          "nome": "01. Receita Bruta de Vendas",
+          "valor": 6278705.72
+        },
+        {
+          "nome": "02. Custo dos Serviços Prestados",
+          "valor": -5139845.043000002
+        },
+        {
+          "nome": "02. Impostos",
+          "valor": -583902.7219350002
+        },
+        {
+          "nome": "02. Despesas Administrativas",
+          "valor": -459107.13800000027
+        },
+        {
+          "nome": "01. Despesas com Pessoal",
+          "valor": -249514.27
+        },
+        {
+          "nome": "03. Despesas Financeiras",
+          "valor": -186441.39
+        },
+        {
+          "nome": "03. Deduções de Receita",
+          "valor": -50588.96000000001
+        },
+        {
+          "nome": "01. Outras Receitas",
+          "valor": 37271.679999999986
+        },
+        {
+          "nome": "05. Outros Tributos",
+          "valor": -26870.509999999995
+        },
+        {
+          "nome": "02. Receitas Financeiras",
+          "valor": 10618.960000000001
+        },
+        {
+          "nome": "04. Despesas de Vendas e Marketing",
+          "valor": -500.0
+        }
+      ]
+    }
+  ]
+}

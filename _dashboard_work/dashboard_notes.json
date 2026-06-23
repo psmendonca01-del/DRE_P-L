@@ -1,0 +1,32 @@
+{
+  "view-dashboard|evolucao-mensal|5|--accent:var(--green)": {
+    "note": "1) Amazon:\n   a) Em Jan/2026 ainda tivemos algumas NF´s emitidas referente as campanhas de final de ano. Por isso o valor ainda está alto.\n\n   b) Em Mar/2026 começamos a campanha Consumer. Onde teve reflexo de faturamento até 04/2026\n\n2) Bimbo:\n   a) Bimbo só começamos a faturar em 03/2026, pois devido a problemas de processos do próprio cliente as NF´s ficaram represadas.\n\n3) Mercado Livre:\n   a) Faturamento de jan/2026 maior devido ao reflexo das campanhas de final de ano 2025",
+    "title": "Evolução Mensal",
+    "updatedAt": "2026-06-22T14:16:23.686Z"
+  },
+  "view-evolution|maiores-variacoes-por-conta|9|--accent:var(--red)": {
+    "note": "Essas Variações, mostram a eficiencia operacional desse período.\nOu seja, conseguimos faturar mais, diminuimos os custos, despesas e despesas financeiras.",
+    "title": "Maiores variações por conta",
+    "updatedAt": "2026-06-21T17:58:33.705Z"
+  },
+  "view-dre|dre-comparativo|0|--accent:var(--green)": {
+    "note": "1)Faturamento de 2026 aumentou em relação ao mesmo periodo de 2025\n2)Os custos de 2026 aumentaram 10% em relação a 2025 pelo fato de 2025 (Janeiro) teve o acumulo de NF´s 12/2024, portanto faturamos mais, porém os custos já tinham sido absorvidos em 12/2024\n3)Nossas despesas realmente teve aumento nesse periodo, pois de jan a abr/2025, não existia Fermaro.\n4)Depreciações aumentaram expressivamente, pois em 12/2025 adquirimos 14 veiculos utilitarios, onde somente o mes de dezembro absorveu essas depreciações. Mas de 01/2026 até 04/2026, essas depreciações são totais.\n5)Impactado pelos juros sobre emprestimos. Fizemos a quitação de alguns emprestimos que venciam somente em julho.\n",
+    "title": "DRE Comparativo",
+    "updatedAt": "2026-06-19T23:05:15.954Z"
+  },
+  "view-dre|dre-detalhado|1|--accent:var(--blue)": {
+    "note": "As despesas correspondem a 11% do faturamento liquido.\n\nTemos 2 opções:\n\n1- Aumentar as receitas em mais de R$ 125k Mês e manter as despesas no mesmo patamar em R$ 634k.\n\n2- Diminuir as despesas em pelo menos 2%. Isso significa uma diminuição mínima de R$ 115k mês.",
+    "title": "DRE Detalhado",
+    "updatedAt": "2026-06-21T16:07:05.061Z"
+  },
+  "view-indicators|comparativo-trimestral-receita-liquida-ebitda-e-resultado-liquido|0|--accent:var(--blue)": {
+    "note": "Faltou 11,4% para atingirmos o mesmo faturamento de 2025.\n\nPontos importantes:\nEm Jan/2025 tivemos mais de R$ 4,5k de faturamento que represamos em 2024\nPortanto se isolassemos esse faturamento, em 2026 o faturamento seria maior em compararação a 2025.\n\nOutra ponto, o Ebitda e Resultado Liquido de 2025, está bem maior, pelo fato desse faturamento adicional. Fazendo com que em 01T2025 tivéssemos um Ebitda bem menor e o Resultado Liquido Negativo\n\nConclusão, 2026 estamos com um crescimento contábil mais sustentável, respeitando os períodos de campanha dos clientes.\n",
+    "title": "Comparativo Trimestral - Receita Líquida, EBITDA e Resultado Líquido",
+    "updatedAt": "2026-06-21T16:26:27.308Z"
+  },
+  "view-indicators|comparativo-semestral-receita-liquida-ebitda-e-resultado-liquido|1|--accent:var(--teal)": {
+    "note": "Se for comparar 01S2026 vs 01S2025, faltam 28,1% para atingirmos o mesmo patarmar de 2025.\n\nIsso, mesmo sem isolar o faturamento represado 2024/2025",
+    "title": "Comparativo Semestral - Receita Líquida, EBITDA e Resultado Líquido",
+    "updatedAt": "2026-06-21T17:59:40.801Z"
+  }
+}

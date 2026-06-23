@@ -1,0 +1,23 @@
+__pycache__/
+*.pyc
+*.pyo
+*.log
+*.status.log
+*.launch.log
+*.stdout.log
+*.stderr.log
+*.err.log
+*.out.log
+
+# Local workbook copies and generated source snapshots
+_pl_work/*.xlsx
+_dashboard_work/source_copies/
+
+# Generated reports
+output/
+_dashboard_work/report/
+_dashboard_work/executive_report_assets/
+
+# Local scratch files
+tmp/
+.agents/
