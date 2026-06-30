@@ -337,9 +337,9 @@ class PLHandler(SimpleHTTPRequestHandler):
 
 def main():
     status("starting")
-    server = ThreadingHTTPServer(("127.0.0.1", 8775), PLHandler)
-    status("listening http://127.0.0.1:8775/dashboard_pl.html")
-    print("P&L server running at http://127.0.0.1:8775/dashboard_pl.html", flush=True)
+    server = ThreadingHTTPServer(("0.0.0.0", 8775), PLHandler)
+    status("listening http://0.0.0.0:8775/dashboard_pl.html")
+    print("P&L server running at http://0.0.0.0:8775/dashboard_pl.html", flush=True)
     server.serve_forever()
 
 
