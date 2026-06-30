@@ -1205,7 +1205,7 @@ h2{font-size:14px;line-height:1.1;margin:0 0 8px;font-weight:700}
 
 
 JS = r"""
-const DATA_URL='pl_data.json?ts='+Date.now();let DATA=null,NOTES={},activeNoteKey='';const POPUP_GROUPS=new Map(),LEDGER_CONTEXTS=new Map();const OPS_LAYOUT_KEY='plOpsCardLayout';const state={year:'',months:['all'],client:'all',project:'all',unit:'all',expt:'all',type:'all',fleet:'all',view:'dashboard',drill:{},rankSort:{unitRank:'desc',typeRank:'desc',fleetRank:'desc'}};const $=id=>document.getElementById(id);
+const DATA_URL='/data?ts='+Date.now();let DATA=null,NOTES={},activeNoteKey='';const POPUP_GROUPS=new Map(),LEDGER_CONTEXTS=new Map();const OPS_LAYOUT_KEY='plOpsCardLayout';const state={year:'',months:['all'],client:'all',project:'all',unit:'all',expt:'all',type:'all',fleet:'all',view:'dashboard',drill:{},rankSort:{unitRank:'desc',typeRank:'desc',fleetRank:'desc'}};const $=id=>document.getElementById(id);
 const BRL=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});const PCT=new Intl.NumberFormat('pt-BR',{style:'percent',minimumFractionDigits:1,maximumFractionDigits:1});
 function fmtMoney(v){return BRL.format((Number(v)||0)/1000)}function fmtPct(v){return Number.isFinite(v)?PCT.format(v):'-'}function cls(v){return !Number.isFinite(v)||Math.abs(v)<.0001?'':v>=0?'value-pos':'value-neg'}
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}

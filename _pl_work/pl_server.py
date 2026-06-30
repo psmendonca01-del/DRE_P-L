@@ -208,9 +208,83 @@ def grouped_ledger_payload(rows):
     return sorted(grouped.values(), key=lambda item: (str(item.get("period", "")), str(item.get("source", "")), str(item.get("invoice", ""))))
 
 
+def _decode_meta_value(value):
+    try:
+        return json.loads(value)
+    except Exception:
+        return value
+
+
+def _compact_row(row):
+    out = {}
+    for key, value in dict(row).items():
+        if key == "id":
+            continue
+        if value in (None, ""):
+            continue
+        if isinstance(value, (int, float)) and abs(value) < 0.0001:
+            continue
+        out[key] = value
+    return out
+
+
+def read_data_from_db():
+    if not DB_FILE.exists():
+        return None
+    with sqlite3.connect(str(DB_FILE)) as conn:
+        conn.row_factory = sqlite3.Row
+        meta = {
+            row["key"]: _decode_meta_value(row["value"])
+            for row in conn.execute("SELECT key, value FROM meta")
+        }
+        tables = {
+            "unifiedRows": "unified_rows",
+            "operationRows": "operation_rows",
+            "budgetRows": "budget_rows",
+        }
+        data = {"meta": meta, "finance": [], "operations": []}
+        row_fields = (
+            "source",
+            "period",
+            "tipo",
+            "grupo",
+            "account",
+            "category",
+            "client",
+            "rateio",
+            "project",
+            "sourceHub",
+            "hub",
+            "expt",
+            "city",
+            "department",
+            "vehicleType",
+            "fleetType",
+            "fleetOwner",
+            "costType",
+            "scenario",
+            "campaign",
+            "value",
+            "routes",
+            "loaded",
+            "delivered",
+            "evidenced",
+        )
+        sql = f"SELECT {', '.join(row_fields)} FROM {{table}}"
+        for data_key, table in tables.items():
+            data[data_key] = [
+                _compact_row(row)
+                for row in conn.execute(sql.format(table=table))
+            ]
+        return data
+
+
 def status(message):
-    with STATUS_LOG.open("a", encoding="utf-8") as handle:
-        handle.write(f"{message}\n")
+    try:
+        with STATUS_LOG.open("a", encoding="utf-8") as handle:
+            handle.write(f"{message}\n")
+    except OSError:
+        pass
 
 
 class PLHandler(SimpleHTTPRequestHandler):
@@ -333,7 +407,24 @@ class PLHandler(SimpleHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
-        if self.path.split("?", 1)[0].rstrip("/") == "/notes":
+        path = self.path.split("?", 1)[0].rstrip("/")
+        if path == "/data":
+            try:
+                payload = read_data_from_db()
+                if payload is None:
+                    payload = json.loads(DATA_FILE.read_text(encoding="utf-8"))
+                body = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+                self.send_response(200)
+            except Exception as exc:
+                status(f"data read error: {exc!r}")
+                body = json.dumps({"ok": False, "error": repr(exc)}, ensure_ascii=False).encode("utf-8")
+                self.send_response(500)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
+        if path == "/notes":
             payload = {}
             try:
                 if NOTES_FILE.exists():
