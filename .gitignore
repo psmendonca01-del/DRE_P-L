@@ -12,6 +12,10 @@ __pycache__/
 # Local workbook copies and generated source snapshots
 _pl_work/*.xlsx
 _dashboard_work/source_copies/
+_pl_work/node_modules/
+_pl_work/pl_ledger.json
+_pl_work/budget_seed.json
+_pl_work/*preview.png
 
 # Generated reports
 output/

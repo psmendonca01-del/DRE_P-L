@@ -13,6 +13,7 @@ BASE = Path(__file__).resolve().parent
 SOURCE_FILE = Path(r"C:\Users\PauloMendonça\OneDrive - Redefrete\Área de Trabalho\Balanço\DashBoard_P&L\P&L.xlsx")
 WORKBOOK = BASE / "PL.xlsx"
 DATA_OUT = BASE / "pl_data.json"
+LEDGER_OUT = BASE / "pl_ledger.json"
 HTML_OUT = BASE / "dashboard_pl.html"
 
 MONTHS = {
@@ -81,15 +82,37 @@ def norm(value):
     return " ".join(text.upper().strip().split())
 
 
+def header_index(ws):
+    headers = [norm(cell.value) for cell in next(ws.iter_rows(min_row=1, max_row=1))]
+    return {header: index for index, header in enumerate(headers) if header}
+
+
+def get_by_header(row, idx, *names, default=None):
+    for name in names:
+        index = idx.get(norm(name))
+        if index is not None and index < len(row):
+            return row[index]
+    return default
+
+
 def code_like(value):
     text = norm(value)
     return bool(text) and any(ch.isdigit() for ch in text) and len(text) <= 6 and text.replace(" ", "").isalnum()
 
 
+def canonical_location(value):
+    text = clean(value, "")
+    key = norm(text).replace("-", " ")
+    key = " ".join(key.split())
+    if key in {"ARENA BARUERI", "BARUERI ARENA"}:
+        return "Arena Barueri"
+    return text
+
+
 def unit_value(item):
-    hub = item.get("hub") or ""
-    source_hub = item.get("sourceHub") or ""
-    department = item.get("department") or ""
+    hub = canonical_location(item.get("hub") or "")
+    source_hub = canonical_location(item.get("sourceHub") or "")
+    department = canonical_location(item.get("department") or "")
     if hub and not code_like(hub):
         return hub
     if department and department != "N/D" and not code_like(department):
@@ -149,6 +172,32 @@ def scoped_allocation_keys(period, client, project, hub, expt="Todos"):
         (period, client, "Todos", "Todos"),
         (period, "Todos", "Todos", "Todos"),
     )
+
+
+def scoped_rateio_base(period, client, project, hub, expt, scoped_basis, global_basis, is_fleet_utility=False):
+    def fleet_only(base):
+        return {
+            alloc_key: alloc_value
+            for alloc_key, alloc_value in base.items()
+            if alloc_key[7] == "Frota" and alloc_key[8] == "Propria"
+        }
+
+    for scoped_key in scoped_allocation_keys(period, client, project, hub, expt):
+        base = scoped_basis.get(scoped_key, {})
+        if not base:
+            continue
+        if is_fleet_utility:
+            filtered = fleet_only(base)
+            if filtered:
+                return filtered
+            continue
+        return base
+
+    if is_fleet_utility:
+        filtered = fleet_only(global_basis)
+        if filtered:
+            return filtered
+    return global_basis
 
 
 def classify_finance(account, category):
@@ -303,6 +352,40 @@ def compact_operation_rows(rows):
     return [row for row in grouped.values() if any(abs(row.get(measure, 0)) > 0.0001 for measure in measures)]
 
 
+def ledger_rows(rows):
+    keep = (
+        "source",
+        "period",
+        "account",
+        "category",
+        "client",
+        "project",
+        "sourceHub",
+        "hub",
+        "expt",
+        "department",
+        "vehicleType",
+        "fleetType",
+        "costType",
+        "party",
+        "invoice",
+        "sourceRow",
+        "originalValue",
+        "value",
+    )
+    grouped = {}
+    dimensions = tuple(name for name in keep if name not in {"value"})
+    for row in rows:
+        if abs(row.get("value", 0) or 0) <= 0.0001:
+            continue
+        key = tuple(row.get(name, "") for name in dimensions)
+        if key not in grouped:
+            grouped[key] = {name: row.get(name, "") for name in dimensions}
+            grouped[key]["value"] = 0.0
+        grouped[key]["value"] += row.get("value", 0) or 0
+    return [row for row in grouped.values() if abs(row.get("value", 0) or 0) > 0.0001]
+
+
 def is_truthy_flag(value):
     text = norm(value)
     return bool(text) and text not in {"NAO", "NÃO", "N", "NO", "FALSE", "0"}
@@ -390,22 +473,22 @@ def build_data():
 
         code = clean(row[hub_idx.get("CODIGO", 0)], "")
         if code:
-            code_hub_name = clean(row[hub_idx.get("NOME_HUB", hub_idx.get("CODIGO", 0))], code)
-            code_expt_name = clean(row[hub_idx.get("NOME_EXPT", hub_idx.get("CODIGO", 0))], code)
+            code_hub_name = canonical_location(clean(row[hub_idx.get("NOME_HUB", hub_idx.get("CODIGO", 0))], code))
+            code_expt_name = canonical_location(clean(row[hub_idx.get("NOME_EXPT", hub_idx.get("CODIGO", 0))], code))
             hub_code_names[norm(code)] = {"hubName": code_hub_name, "exptName": code_expt_name}
             unit_name_by_code[norm(code)] = code_hub_name
             expt_name_by_code[norm(code)] = code_expt_name
 
     for row in hub_rows:
         operation = clean(row[hub_idx.get("OPERACAO", 0)], "")
-        origin_hub = clean(row[hub_idx.get("HUB", 1)], "")
+        origin_hub = canonical_location(clean(row[hub_idx.get("HUB", 1)], ""))
         city = clean(row[hub_idx.get("CIDADE", 2)], "")
         expt_code = clean(row[hub_idx.get("EXPT", 3)], "")
         if expt_code and origin_hub:
             unit_name_by_code.setdefault(norm(expt_code), origin_hub)
         code_names = hub_code_names.get(norm(expt_code), {})
-        hub_name = code_names.get("hubName", origin_hub)
-        expt_name = code_names.get("exptName", expt_code or hub_name)
+        hub_name = canonical_location(code_names.get("hubName", origin_hub))
+        expt_name = canonical_location(code_names.get("exptName", expt_code or hub_name))
         if code_like(expt_name) and origin_hub:
             expt_name = origin_hub
         if operation and origin_hub and city:
@@ -443,38 +526,43 @@ def build_data():
     operations = defaultdict(lambda: defaultdict(float))
     operation_rows = []
     ws = wb["Faturamento_Pagamento"]
-    for row in ws.iter_rows(min_row=2, values_only=True):
-        dt = row[1]
-        period = period_from_parts(row[18], row[17])
+    fp_idx = header_index(ws)
+    for excel_row, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
+        dt = get_by_header(row, fp_idx, "DATA")
+        period = period_from_parts(
+            get_by_header(row, fp_idx, "Ano Competência", "Ano Competencia"),
+            get_by_header(row, fp_idx, "Mês Competência", "Mes Competencia"),
+        )
         if not period and isinstance(dt, datetime):
             period = f"{dt.year}-{dt.month:02d}"
         if not period:
             continue
-        launch = clean(row[0])
-        plate = clean(row[4], "")
-        vehicle_type = clean(row[5])
-        project = clean(row[6])
+        launch = clean(get_by_header(row, fp_idx, "LANÇAMENTO", "LANCAMENTO"))
+        plate = clean(get_by_header(row, fp_idx, "PLACA"), "")
+        vehicle_type = clean(get_by_header(row, fp_idx, "TIPO"))
+        project = clean(get_by_header(row, fp_idx, "OPERACAO", "OPERAÇÃO"))
         client = client_map.get(project, project)
         is_rateio = project in rateio_projects
-        source_hub = clean(row[7])
-        city = clean(row[8])
+        source_hub = canonical_location(clean(get_by_header(row, fp_idx, "HUB")))
+        city = clean(get_by_header(row, fp_idx, "CIDADE"))
         hub_info = hub_map.get((norm(project), norm(source_hub), norm(city)), {})
-        hub = hub_info.get("hubName", source_hub)
-        expt = hub_info.get("expt", hub)
-        department = hub_info.get("department", expt)
+        hub = canonical_location(hub_info.get("hubName", source_hub))
+        expt = canonical_location(hub_info.get("expt", hub))
+        department = canonical_location(hub_info.get("department", expt))
         fleet_type = "Frota" if plate and norm(plate) in fleet_plates else "Agregado"
         fleet_owner = fleet_map.get(norm(plate), "Agregado")
-        value = safe_float(row[15])
-        shipped = safe_float(row[10])
-        delivered = safe_float(row[11])
-        performance = delivered / shipped if shipped else safe_float(row[12])
-        evidenced = 1 if norm(row[13]) == "SIM" else 0
+        value = safe_float(get_by_header(row, fp_idx, "VALOR"))
+        invoice = clean(get_by_header(row, fp_idx, "INVOICE", "NF"), "")
+        shipped = safe_float(get_by_header(row, fp_idx, "EMBARCADOS", "EMBARCADO"))
+        delivered = safe_float(get_by_header(row, fp_idx, "ENTREGUES", "ENTREGUE"))
+        performance = delivered / shipped if shipped else safe_float(get_by_header(row, fp_idx, "PERFORMANCE"))
+        evidenced = 1 if norm(get_by_header(row, fp_idx, "EVIDENCIADO")) == "SIM" else 0
 
-        is_route = norm(launch) == "ROTAS"
+        is_route = norm(launch) in {"ROTA", "ROTAS"}
         op_values = {
             "routes": 1 if is_route else 0,
             "freightValue": value,
-            "km": safe_float(row[9]),
+            "km": safe_float(get_by_header(row, fp_idx, "KM")),
             "shipped": shipped if is_route else 0,
             "delivered": delivered if is_route else 0,
             "performanceWeighted": performance * shipped if is_route else 0,
@@ -565,6 +653,10 @@ def build_data():
                 "category": category,
                 "costType": cost_type,
                 "value": dre_value,
+                "originalValue": value,
+                "party": client,
+                "invoice": invoice,
+                "sourceRow": excel_row,
                 "client": client,
                 "rateio": is_rateio,
                 "project": project,
@@ -582,7 +674,7 @@ def build_data():
             unified_rows.append(item)
 
     ws = wb["Razão"]
-    for row in ws.iter_rows(min_row=2, values_only=True):
+    for excel_row, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
         period = period_from_parts(row[5], row[6])
         if not period:
             continue
@@ -594,11 +686,13 @@ def build_data():
         if client == "TOTAL":
             client = "REDEFRETE"
         raw_hub = clean(row[13])
-        hub = unit_name_by_code.get(norm(raw_hub), raw_hub)
-        expt = expt_name_by_code.get(norm(raw_hub), hub)
-        department = clean(row[12])
+        hub = canonical_location(unit_name_by_code.get(norm(raw_hub), raw_hub))
+        expt = canonical_location(expt_name_by_code.get(norm(raw_hub), hub))
+        department = canonical_location(clean(row[12]))
         account = clean(row[2])
         category = clean(row[3])
+        party = clean(row[8])
+        invoice = clean(row[10])
         cost_type = cost_type_by_category.get(norm(category), cost_type_by_launch.get(norm(category), ""))
         financeiro_fuel_expense = norm(category) == norm("Combustível Frota") and norm(hub) == norm("Financeiro")
         if financeiro_fuel_expense:
@@ -621,14 +715,18 @@ def build_data():
             display_account = "02. Receitas Financeiras"
         is_fleet_utility = False if financeiro_fuel_expense else norm(category) in fleet_categories or norm(category) in fleet_launches
         is_razao_rateio = norm(department) in RATEIO_DEPARTMENTS
-        rateio_base = allocation_basis.get(period, {})
+        global_rateio_base = allocation_basis.get(period, {})
+        rateio_base = scoped_rateio_base(
+            period,
+            client,
+            project,
+            hub,
+            expt,
+            scoped_type_basis,
+            global_rateio_base,
+            is_fleet_utility,
+        )
         if is_razao_rateio and rateio_base:
-            if is_fleet_utility:
-                rateio_base = {
-                    alloc_key: alloc_value
-                    for alloc_key, alloc_value in rateio_base.items()
-                    if alloc_key[7] == "Frota" and alloc_key[8] == "Propria"
-                }
             base_total = sum(rateio_base.values())
             if base_total:
                 for alloc_key, alloc_value in rateio_base.items():
@@ -664,6 +762,10 @@ def build_data():
                         "category": category,
                         "costType": cost_type,
                         "value": allocated_value,
+                        "originalValue": value,
+                        "party": party,
+                        "invoice": invoice,
+                        "sourceRow": excel_row,
                         "client": alloc_client,
                         "rateio": True,
                         "rateioOriginProject": project,
@@ -724,6 +826,10 @@ def build_data():
                         "category": category,
                         "costType": cost_type,
                         "value": allocated_value,
+                        "originalValue": value,
+                        "party": party,
+                        "invoice": invoice,
+                        "sourceRow": excel_row,
                         "client": alloc_client,
                         "rateio": False,
                         "typeAllocationOriginProject": project,
@@ -761,6 +867,10 @@ def build_data():
             "category": category,
             "costType": cost_type,
             "value": value,
+            "originalValue": value,
+            "party": party,
+            "invoice": invoice,
+            "sourceRow": excel_row,
             "client": client,
             "rateio": is_razao_rateio,
             "project": project,
@@ -830,6 +940,7 @@ def build_data():
         "unifiedRows": compact_unified_rows,
     }
     DATA_OUT.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    LEDGER_OUT.write_text(json.dumps(ledger_rows(unified_rows), ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return data
 
 
@@ -921,7 +1032,7 @@ h2{font-size:14px;line-height:1.1;margin:0 0 8px;font-weight:700}
 .note-modal h3{margin:0;font-size:18px;line-height:1.2}.note-modal p{margin:4px 0 0;color:var(--muted);font-size:12px}
 .unit-modal-body{overflow:auto;border:1px solid var(--line);border-radius:8px}
 .ledger-modal-body{overflow:auto;border:1px solid var(--line);border-radius:8px}
-.ledger-table{min-width:1120px}.ledger-table td:first-child,.ledger-table th:first-child{min-width:84px}.ledger-table td:nth-child(8){font-weight:650}
+.ledger-table{min-width:760px}.ledger-table td:first-child,.ledger-table th:first-child{min-width:84px}.ledger-table td:nth-child(4){font-weight:650}
 .ledger-dbl{cursor:zoom-in}.ledger-dbl:hover td{background:#f3f7ff}
 .breakeven-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:4px 0 10px}
 .be-card{border:1px solid var(--line);border-radius:8px;background:#fbfdff;padding:8px 10px;min-height:58px}
@@ -1013,10 +1124,10 @@ function lineBucketForField(field){if(field==='taxes'||field==='deductions')retu
 function detailRows(periods,lineKey){return filteredDetailRows(periods).filter(r=>lineBucketForRow(r)===lineKey)}
 function aggregateDetailsFromRows(rows,lineKey){const accounts=new Map();for(const r of rows.filter(r=>lineBucketForRow(r)===lineKey)){const account=r.account||'N/D';const category=r.category||'N/D';if(!accounts.has(account))accounts.set(account,{label:account,periods:{},total:0,categories:new Map()});const acc=accounts.get(account);acc.periods[r.period]=(acc.periods[r.period]||0)+(r.value||0);acc.total+=(r.value||0);if(!acc.categories.has(category))acc.categories.set(category,{label:category,periods:{},total:0});const cat=acc.categories.get(category);cat.periods[r.period]=(cat.periods[r.period]||0)+(r.value||0);cat.total+=(r.value||0)}return [...accounts.values()].filter(d=>Math.abs(d.total)>.0001).map(d=>({...d,categories:[...d.categories.values()].filter(c=>Math.abs(c.total)>.0001).sort((a,b)=>Math.abs(b.total)-Math.abs(a.total))})).sort((a,b)=>Math.abs(b.total)-Math.abs(a.total))}
 function aggregateDetails(periods,lineKey){return aggregateDetailsFromRows(detailRows(periods,lineKey),lineKey)}
-function ledgerRows(baseRows,lineKey,account,category){return baseRows.filter(r=>lineBucketForRow(r)===lineKey&&(!account||r.account===account)&&(!category||r.category===category)).sort((a,b)=>String(a.period).localeCompare(String(b.period))||String(a.date||'').localeCompare(String(b.date||'')))}
-function registerLedger(rows,title){const key='ledger:'+LEDGER_CONTEXTS.size;LEDGER_CONTEXTS.set(key,{rows,title});return key}
-function bindLedgerRows(scope=document){scope.querySelectorAll('[data-ledger-key]').forEach(row=>{row.ondblclick=e=>{const key=row.dataset.ledgerKey,ctx=LEDGER_CONTEXTS.get(key);if(!ctx)return;openLedgerPopup(ctx.rows,ctx.title)}})}
-function openLedgerPopup(rows,title){const total=rows.reduce((s,r)=>s+(r.value||0),0);$('ledgerTitle').textContent=`Lançamentos - ${title}`;$('ledgerSubtitle').textContent=`${rows.length.toLocaleString('pt-BR')} lançamentos | Total ${fmtMoney(total)} | Duplo clique foi aplicado respeitando os filtros atuais.`;$('ledgerTable').innerHTML=`<thead><tr><th>Período</th><th>Data</th><th>Origem</th><th>Cliente</th><th>Projeto</th><th>Unidade / Expt</th><th>Conta DRE</th><th>Categoria</th><th>Tipo</th><th>Frota</th><th>Valor</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(monthLabel(r.period))}</td><td>${esc(r.date||'')}</td><td>${esc(r.source||'')}</td><td>${esc(displayLabel(r.client||''))}</td><td>${esc(displayLabel(r.project||''))}</td><td>${esc(hubExptLabel(r))}</td><td>${esc(r.account||'')}</td><td>${esc(r.category||'')}</td><td>${esc(displayLabel(r.vehicleType||''))}</td><td>${esc(displayLabel(r.fleetType||''))}</td><td class="${cls(r.value)}">${fmtMoney(r.value)}</td></tr>`).join('')}</tbody>`;$('ledgerModal').hidden=false}
+function registerLedger(query,title){const key='ledger:'+LEDGER_CONTEXTS.size;LEDGER_CONTEXTS.set(key,{query,title});return key}
+function bindLedgerRows(scope=document){scope.querySelectorAll('[data-ledger-key]').forEach(row=>{row.ondblclick=e=>{const key=row.dataset.ledgerKey,ctx=LEDGER_CONTEXTS.get(key);if(!ctx)return;openLedgerPopup(ctx.query,ctx.title)}})}
+function commonText(rows,fn,label){const values=[...new Set(rows.map(fn).filter(Boolean))];return values.length===1?`${label}: ${values[0]}`:values.length?`${label}: Diversos`:''}
+async function openLedgerPopup(query,title){$('ledgerTitle').textContent=`Lançamentos - ${title}`;$('ledgerSubtitle').textContent='Carregando lançamentos...';$('ledgerTable').innerHTML='';$('ledgerModal').hidden=false;const payload={...query,filters:{year:state.year,months:currentPeriods(),client:state.client,project:state.project,unit:state.unit,expt:state.expt,type:state.type,fleet:state.fleet}};try{const res=await fetch(new URL('/ledger',location.origin).href,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),cache:'no-store'});const data=await res.json();if(!res.ok||!data.ok)throw new Error(data.error||'Não foi possível carregar os lançamentos.');const rows=data.rows||[],absorbed=data.absorbed||0,original=data.original||0,context=data.context||'',count=data.count||rows.length;$('ledgerSubtitle').textContent=`${count.toLocaleString('pt-BR')} lançamentos | Valor total ${fmtMoney(original)} | Valor absorvido ${fmtMoney(absorbed)}${context?' | '+context:''}`;$('ledgerTable').innerHTML=`<thead><tr><th>Período</th><th>Origem</th><th>Fornecedor/Cliente</th><th>NF</th><th>Valor Total</th><th>Valor Rateado / Absorvido</th></tr></thead><tbody>${rows.map(r=>{const total=Number.isFinite(Number(r.originalValue))?Number(r.originalValue):r.value||0;return `<tr><td>${esc(monthLabel(r.period))}</td><td>${esc(r.source||'')}</td><td>${esc(displayLabel(r.party||r.client||''))}</td><td>${esc(r.invoice||'')}</td><td class="${cls(total)}">${fmtMoney(total)}</td><td class="${cls(r.value)}">${fmtMoney(r.value)}</td></tr>`}).join('')}</tbody>`}catch(err){$('ledgerSubtitle').textContent='Erro ao carregar lançamentos: '+err.message}}
 function closeLedgerPopup(){$('ledgerModal').hidden=true}
 function plLines(f){return [['R$ Receita Bruta','gross',f.gross,true,false],['(-) R$ Deduções / Impostos','deductions',f.deductions,false,true],['(=) R$ Receita Líquida','netRevenue',f.netRevenue,true,false],['(-) R$ Custos Variáveis','costsVariable',f.costsVariable,false,true],['(=) R$ Margem de Contribuição antes dos Custos Fixos','marginBeforeFixedCosts',f.marginBeforeFixedCosts,true,false],['(-) R$ Custos Fixos','costsFixed',f.costsFixed,false,true],['(=) R$ Margem de Contribuição','contributionMargin',f.contributionMargin,true,false],['(-) R$ Despesas','expensesTotal',f.expensesTotal,false,true],['(=) R$ EBITDA','ebitda',f.ebitda,true,false],['(-) R$ Depreciações','depreciation',f.depreciation,false,true],['(=) R$ EBIT','ebit',f.ebit,true,false],['(-) Resultado Financeiro','financialResult',f.financialResult,false,true],['(=) R$ EBT','ebt',f.ebt,true,false],['(-) R$ Impostos antes do Resultado','resultTaxes',f.resultTaxes,false,true],['(=) R$ Resultado Líquido','netResult',f.netResult,true,false]]}
 function renderTable(target='plTable'){const f=sumRows(rowsFinance());const lines=plLines(f);$(target).innerHTML=`<thead><tr><th>Linha P&L</th><th>Valor</th><th>% RL</th></tr></thead><tbody>${lines.map(l=>`<tr class="${l[3]?'total-row':''}"><td>${l[0]}</td><td class="${cls(l[2])}">${fmtMoney(l[2])}</td><td>${f.netRevenue?fmtPct(Math.abs(l[2])/f.netRevenue):'-'}</td></tr>`).join('')}</tbody>`}
@@ -1026,8 +1137,8 @@ function periodRangeLabel(periods){const list=[...periods].sort();if(!list.lengt
 function variationPct(current,previous){return Number.isFinite(previous)&&Math.abs(previous)>0.01?(current-previous)/Math.abs(previous):null}
 function renderVs(current,previous){const v=variationPct(current,previous);return Number.isFinite(v)?`<span class="sub ${v>=0?'value-pos':'value-neg'}">vs ${fmtPct(v)}</span>`:`<span class="sub">vs -</span>`}
 function renderPlPeriodComparison(){const periods=currentPeriods();const previous=periods.map(previousYearPeriod).filter(p=>DATA.meta.periods.includes(p));const current=sumRows(scopedFinance(periods));const prior=sumRows(scopedFinance(previous));const rows=plLines(current);$('plComparisonNote').textContent=`${periodRangeLabel(periods)} vs ${periodRangeLabel(previous)}`;const cell=(value,net)=>`${fmtMoney(value)}<span class="sub">% RL ${net?fmtPct(Math.abs(value)/net):'-'}</span>`;$('plComparisonTable').innerHTML=`<thead><tr><th>Linha P&L</th><th>Período atual</th><th>Período comp.</th><th>Variação</th><th>Variação %</th></tr></thead><tbody>${rows.map(line=>{const key=line[1],cur=current[key]||0,old=prior[key]||0,diff=cur-old,pct=variationPct(cur,old);return `<tr class="${line[3]?'total-row':line[4]?'group-row':''}"><td>${line[0]}</td><td class="${cls(cur)}">${cell(cur,current.netRevenue)}</td><td class="${cls(old)}">${previous.length?cell(old,prior.netRevenue):'-'}</td><td class="${cls(diff)}">${previous.length?fmtMoney(diff):'-'}</td><td class="${Number.isFinite(pct)?(pct>=0?'value-pos':'value-neg'):''}">${Number.isFinite(pct)?fmtPct(pct):'-'}</td></tr>`}).join('')}</tbody>`}
-function renderPlModuleTable(){const periods=currentPeriods();const allRows=filteredDetailRows(periods);const buckets=new Map(periods.map(p=>[p,sumRows(scopedFinance([p]))]));const total=sumRows(scopedFinance(periods));const defs=plLines(total);const cell=(period,key)=>{const bucket=buckets.get(period)||{};const value=bucket[key]||0;const share=bucket.netRevenue?Math.abs(value)/bucket.netRevenue:null;return `<td class="${cls(value)}">${fmtMoney(value)}<span class="sub">% RL ${fmtPct(share)}</span></td>`};const totalCell=(key)=>{const value=total[key]||0;const share=total.netRevenue?Math.abs(value)/total.netRevenue:null;return `<td class="${cls(value)}">${fmtMoney(value)}<span class="sub">% RL ${fmtPct(share)}</span></td>`};const detailCell=(period,periodMap,net)=>{const value=periodMap[period]||0;const share=net?Math.abs(value)/net:null;return `<td class="${cls(value)}">${fmtMoney(value)}<span class="sub">% RL ${share==null?'-':fmtPct(share)}</span></td>`};const detailTotalCell=(periodMap)=>{const value=periods.reduce((sum,p)=>sum+(periodMap[p]||0),0);const share=total.netRevenue?Math.abs(value)/total.netRevenue:null;return `<td class="${cls(value)}">${fmtMoney(value)}<span class="sub">% RL ${share==null?'-':fmtPct(share)}</span></td>`};let body='';for(const line of defs){const open=!!state.drill[line[1]];const button=line[4]?`<button class="drill-btn" data-drill="${line[1]}">${open?'−':'+'}</button>`:'';body+=`<tr class="${line[3]?'total-row':line[4]?'group-row':''}"><td>${button}${line[0]}</td>${periods.map(p=>cell(p,line[1])).join('')}${totalCell(line[1])}</tr>`;if(open){for(const acc of aggregateDetails(periods,line[1])){const ledgerKey=registerLedger(ledgerRows(allRows,line[1],acc.label,null),acc.label);const accKey=line[1]+'|'+acc.label;const accOpen=!!state.drill[accKey];const accButton=acc.categories.length?`<button class="drill-btn" data-drill="${accKey}">${accOpen?'−':'+'}</button>`:'';body+=`<tr class="detail-row ledger-dbl" data-ledger-key="${ledgerKey}" title="Duplo clique para ver os lançamentos"><td class="detail-label">${accButton}${acc.label}</td>${periods.map(p=>detailCell(p,acc.periods,(buckets.get(p)||{}).netRevenue)).join('')}${detailTotalCell(acc.periods)}</tr>`;if(accOpen){for(const cat of acc.categories){const catLedgerKey=registerLedger(ledgerRows(allRows,line[1],acc.label,cat.label),cat.label);body+=`<tr class="detail-row ledger-dbl" data-ledger-key="${catLedgerKey}" title="Duplo clique para ver os lançamentos"><td class="detail-label" style="padding-left:52px">${cat.label}</td>${periods.map(p=>detailCell(p,cat.periods,(buckets.get(p)||{}).netRevenue)).join('')}${detailTotalCell(cat.periods)}</tr>`}}}}}$('plModuleTable').innerHTML=`<thead><tr><th>Linha P&L</th>${periods.map(p=>`<th>${monthLabel(p)}</th>`).join('')}<th>Total</th></tr></thead><tbody>${body}</tbody>`;document.querySelectorAll('[data-drill]').forEach(btn=>btn.onclick=()=>{state.drill[btn.dataset.drill]=!state.drill[btn.dataset.drill];renderPlModuleTable()});bindLedgerRows($('plModuleTable'))}
-function renderUnitPlTable(){const rows=filteredDetailRows(currentPeriods());const groups=new Map();for(const r of rows){const key=hubExptLabel(r);if(!key||key==='N/D')continue;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(r)}const groupList=[...groups.entries()].map(([name,items])=>({name,rows:items,finance:financeFromDetails(items)})).filter(g=>Math.abs(g.finance.netRevenue||0)>0||Math.abs(g.finance.netResult||0)>0||Math.abs(g.finance.ebitda||0)>0).sort((a,b)=>Math.abs(b.finance.netRevenue||0)-Math.abs(a.finance.netRevenue||0));const total=financeFromDetails(rows);const defs=plLines(total);const cell=(finance,key)=>{const value=finance[key]||0;const share=finance.netRevenue?Math.abs(value)/finance.netRevenue:null;return `<td class="${cls(value)}">${fmtMoney(value)}<span class="sub">% RL ${fmtPct(share)}</span></td>`};const detailValue=(items,lineKey,account,category)=>items.filter(r=>lineBucketForRow(r)===lineKey&&(!account||r.account===account)&&(!category||r.category===category)).reduce((s,r)=>s+(r.value||0),0);const detailCell=(items,lineKey,account,category)=>{const finance=financeFromDetails(items);const value=detailValue(items,lineKey,account,category);const share=finance.netRevenue?Math.abs(value)/finance.netRevenue:null;return `<td class="${cls(value)}">${fmtMoney(value)}<span class="sub">% RL ${share==null?'-':fmtPct(share)}</span></td>`};const totalDetailCell=(lineKey,account,category)=>{const value=detailValue(rows,lineKey,account,category);const share=total.netRevenue?Math.abs(value)/total.netRevenue:null;return `<td class="${cls(value)}">${fmtMoney(value)}<span class="sub">% RL ${share==null?'-':fmtPct(share)}</span></td>`};let body='';for(const line of defs){const open=!!state.drill['unit:'+line[1]];const button=line[4]?`<button class="drill-btn" data-drill="unit:${line[1]}">${open?'−':'+'}</button>`:'';body+=`<tr class="${line[3]?'total-row':line[4]?'group-row':''}"><td>${button}${line[0]}</td>${groupList.map(g=>cell(g.finance,line[1])).join('')}${cell(total,line[1])}</tr>`;if(open){for(const acc of aggregateDetailsFromRows(rows,line[1])){const ledgerKey=registerLedger(ledgerRows(rows,line[1],acc.label,null),acc.label);const accKey='unit:'+line[1]+'|'+acc.label;const accOpen=!!state.drill[accKey];const accButton=acc.categories.length?`<button class="drill-btn" data-drill="${accKey}">${accOpen?'−':'+'}</button>`:'';body+=`<tr class="detail-row ledger-dbl" data-ledger-key="${ledgerKey}" title="Duplo clique para ver os lançamentos"><td class="detail-label">${accButton}${acc.label}</td>${groupList.map(g=>detailCell(g.rows,line[1],acc.label,null)).join('')}${totalDetailCell(line[1],acc.label,null)}</tr>`;if(accOpen){for(const cat of acc.categories){const catLedgerKey=registerLedger(ledgerRows(rows,line[1],acc.label,cat.label),cat.label);body+=`<tr class="detail-row ledger-dbl" data-ledger-key="${catLedgerKey}" title="Duplo clique para ver os lançamentos"><td class="detail-label" style="padding-left:52px">${cat.label}</td>${groupList.map(g=>detailCell(g.rows,line[1],acc.label,cat.label)).join('')}${totalDetailCell(line[1],acc.label,cat.label)}</tr>`}}}}}const empty='<tr><td colspan="2">Sem dados para o filtro selecionado.</td></tr>';$('unitPlTable').innerHTML=`<thead><tr><th>Linha P&L</th>${groupList.map(g=>`<th>${g.name}</th>`).join('')}<th>Total</th></tr></thead><tbody>${groupList.length?body:empty}</tbody>`;document.querySelectorAll('#unitPlTable [data-drill]').forEach(btn=>btn.onclick=()=>{state.drill[btn.dataset.drill]=!state.drill[btn.dataset.drill];renderUnitPlTable()});bindLedgerRows($('unitPlTable'))}
+function renderPlModuleTable(){const periods=currentPeriods();const buckets=new Map(periods.map(p=>[p,sumRows(scopedFinance([p]))]));const total=sumRows(scopedFinance(periods));const defs=plLines(total);const cell=(period,key)=>{const bucket=buckets.get(period)||{};const value=bucket[key]||0;const share=bucket.netRevenue?Math.abs(value)/bucket.netRevenue:null;return `<td class="${cls(value)}">${fmtMoney(value)}<span class="sub">% RL ${fmtPct(share)}</span></td>`};const totalCell=(key)=>{const value=total[key]||0;const share=total.netRevenue?Math.abs(value)/total.netRevenue:null;return `<td class="${cls(value)}">${fmtMoney(value)}<span class="sub">% RL ${fmtPct(share)}</span></td>`};const detailCell=(period,periodMap,net)=>{const value=periodMap[period]||0;const share=net?Math.abs(value)/net:null;return `<td class="${cls(value)}">${fmtMoney(value)}<span class="sub">% RL ${share==null?'-':fmtPct(share)}</span></td>`};const detailTotalCell=(periodMap)=>{const value=periods.reduce((sum,p)=>sum+(periodMap[p]||0),0);const share=total.netRevenue?Math.abs(value)/total.netRevenue:null;return `<td class="${cls(value)}">${fmtMoney(value)}<span class="sub">% RL ${share==null?'-':fmtPct(share)}</span></td>`};let body='';for(const line of defs){const open=!!state.drill[line[1]];const button=line[4]?`<button class="drill-btn" data-drill="${line[1]}">${open?'−':'+'}</button>`:'';body+=`<tr class="${line[3]?'total-row':line[4]?'group-row':''}"><td>${button}${line[0]}</td>${periods.map(p=>cell(p,line[1])).join('')}${totalCell(line[1])}</tr>`;if(open){for(const acc of aggregateDetails(periods,line[1])){const ledgerKey=registerLedger({lineKey:line[1],account:acc.label,category:null},acc.label);const accKey=line[1]+'|'+acc.label;const accOpen=!!state.drill[accKey];const accButton=acc.categories.length?`<button class="drill-btn" data-drill="${accKey}">${accOpen?'−':'+'}</button>`:'';body+=`<tr class="detail-row ledger-dbl" data-ledger-key="${ledgerKey}" title="Duplo clique para ver os lançamentos"><td class="detail-label">${accButton}${acc.label}</td>${periods.map(p=>detailCell(p,acc.periods,(buckets.get(p)||{}).netRevenue)).join('')}${detailTotalCell(acc.periods)}</tr>`;if(accOpen){for(const cat of acc.categories){const catLedgerKey=registerLedger({lineKey:line[1],account:acc.label,category:cat.label},cat.label);body+=`<tr class="detail-row ledger-dbl" data-ledger-key="${catLedgerKey}" title="Duplo clique para ver os lançamentos"><td class="detail-label" style="padding-left:52px">${cat.label}</td>${periods.map(p=>detailCell(p,cat.periods,(buckets.get(p)||{}).netRevenue)).join('')}${detailTotalCell(cat.periods)}</tr>`}}}}}$('plModuleTable').innerHTML=`<thead><tr><th>Linha P&L</th>${periods.map(p=>`<th>${monthLabel(p)}</th>`).join('')}<th>Total</th></tr></thead><tbody>${body}</tbody>`;document.querySelectorAll('[data-drill]').forEach(btn=>btn.onclick=()=>{state.drill[btn.dataset.drill]=!state.drill[btn.dataset.drill];renderPlModuleTable()});bindLedgerRows($('plModuleTable'))}
+function renderUnitPlTable(){const rows=filteredDetailRows(currentPeriods());const groups=new Map();for(const r of rows){const key=hubExptLabel(r);if(!key||key==='N/D')continue;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(r)}const groupList=[...groups.entries()].map(([name,items])=>({name,rows:items,finance:financeFromDetails(items)})).filter(g=>Math.abs(g.finance.netRevenue||0)>0||Math.abs(g.finance.netResult||0)>0||Math.abs(g.finance.ebitda||0)>0).sort((a,b)=>Math.abs(b.finance.netRevenue||0)-Math.abs(a.finance.netRevenue||0));const total=financeFromDetails(rows);const defs=plLines(total);const cell=(finance,key)=>{const value=finance[key]||0;const share=finance.netRevenue?Math.abs(value)/finance.netRevenue:null;return `<td class="${cls(value)}">${fmtMoney(value)}<span class="sub">% RL ${fmtPct(share)}</span></td>`};const detailValue=(items,lineKey,account,category)=>items.filter(r=>lineBucketForRow(r)===lineKey&&(!account||r.account===account)&&(!category||r.category===category)).reduce((s,r)=>s+(r.value||0),0);const detailCell=(items,lineKey,account,category)=>{const finance=financeFromDetails(items);const value=detailValue(items,lineKey,account,category);const share=finance.netRevenue?Math.abs(value)/finance.netRevenue:null;return `<td class="${cls(value)}">${fmtMoney(value)}<span class="sub">% RL ${share==null?'-':fmtPct(share)}</span></td>`};const totalDetailCell=(lineKey,account,category)=>{const value=detailValue(rows,lineKey,account,category);const share=total.netRevenue?Math.abs(value)/total.netRevenue:null;return `<td class="${cls(value)}">${fmtMoney(value)}<span class="sub">% RL ${share==null?'-':fmtPct(share)}</span></td>`};let body='';for(const line of defs){const open=!!state.drill['unit:'+line[1]];const button=line[4]?`<button class="drill-btn" data-drill="unit:${line[1]}">${open?'−':'+'}</button>`:'';body+=`<tr class="${line[3]?'total-row':line[4]?'group-row':''}"><td>${button}${line[0]}</td>${groupList.map(g=>cell(g.finance,line[1])).join('')}${cell(total,line[1])}</tr>`;if(open){for(const acc of aggregateDetailsFromRows(rows,line[1])){const ledgerKey=registerLedger({lineKey:line[1],account:acc.label,category:null},acc.label);const accKey='unit:'+line[1]+'|'+acc.label;const accOpen=!!state.drill[accKey];const accButton=acc.categories.length?`<button class="drill-btn" data-drill="${accKey}">${accOpen?'−':'+'}</button>`:'';body+=`<tr class="detail-row ledger-dbl" data-ledger-key="${ledgerKey}" title="Duplo clique para ver os lançamentos"><td class="detail-label">${accButton}${acc.label}</td>${groupList.map(g=>detailCell(g.rows,line[1],acc.label,null)).join('')}${totalDetailCell(line[1],acc.label,null)}</tr>`;if(accOpen){for(const cat of acc.categories){const catLedgerKey=registerLedger({lineKey:line[1],account:acc.label,category:cat.label},cat.label);body+=`<tr class="detail-row ledger-dbl" data-ledger-key="${catLedgerKey}" title="Duplo clique para ver os lançamentos"><td class="detail-label" style="padding-left:52px">${cat.label}</td>${groupList.map(g=>detailCell(g.rows,line[1],acc.label,cat.label)).join('')}${totalDetailCell(line[1],acc.label,cat.label)}</tr>`}}}}}const empty='<tr><td colspan="2">Sem dados para o filtro selecionado.</td></tr>';$('unitPlTable').innerHTML=`<thead><tr><th>Linha P&L</th>${groupList.map(g=>`<th>${g.name}</th>`).join('')}<th>Total</th></tr></thead><tbody>${groupList.length?body:empty}</tbody>`;document.querySelectorAll('#unitPlTable [data-drill]').forEach(btn=>btn.onclick=()=>{state.drill[btn.dataset.drill]=!state.drill[btn.dataset.drill];renderUnitPlTable()});bindLedgerRows($('unitPlTable'))}
 function rankBy(level,field,target,title){const groups=new Map();for(const r of filteredDetailRows(currentPeriods())){const key=level==='client'?r.client:level==='hub'?r.hub:r.project;if(!key)continue;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(r)}const data=[...groups.entries()].map(([name,rows])=>({name,value:financeFromDetails(rows)[field]||0})).filter(d=>Math.abs(d.value)>0).sort((a,b)=>Math.abs(b.value)-Math.abs(a.value)).slice(0,8);const max=Math.max(...data.map(d=>Math.abs(d.value)),1);$(target).innerHTML=`<div class="rank">${data.map(d=>`<div class="rank-row"><span>${d.name}</span><strong class="${cls(d.value)}">${fmtMoney(d.value)}</strong><div class="track"><div class="fill" style="width:${Math.abs(d.value)/max*100}%;background:${d.value>=0?'#0aa36f':'#ef4444'}"></div></div></div>`).join('')}</div>`}
 function fmtNum(v){return (Number(v)||0).toLocaleString('pt-BR',{maximumFractionDigits:0})}
 function fmtTicket(v){return BRL.format(Number.isFinite(v)?v:0)}
@@ -1080,6 +1191,7 @@ if __name__ == "__main__":
     print(DATA_OUT)
     print(f"finance aggregates: {len(data['finance'])}")
     print(f"operation aggregates: {len(data['operations'])}")
+
 
 
 
