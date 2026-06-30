@@ -228,7 +228,7 @@ def _compact_row(row):
     return out
 
 
-def read_data_from_db():
+def read_data_from_db(scope="all"):
     if not DB_FILE.exists():
         return None
     with sqlite3.connect(str(DB_FILE)) as conn:
@@ -237,12 +237,25 @@ def read_data_from_db():
             row["key"]: _decode_meta_value(row["value"])
             for row in conn.execute("SELECT key, value FROM meta")
         }
-        tables = {
-            "unifiedRows": "unified_rows",
-            "operationRows": "operation_rows",
-            "budgetRows": "budget_rows",
-        }
+        if scope == "base":
+            tables = {
+                "unifiedRows": "unified_rows",
+                "operationRows": "operation_rows",
+            }
+        elif scope == "budget":
+            tables = {"budgetRows": "budget_rows"}
+        else:
+            tables = {
+                "unifiedRows": "unified_rows",
+                "operationRows": "operation_rows",
+                "budgetRows": "budget_rows",
+            }
         data = {"meta": meta, "finance": [], "operations": []}
+        if scope != "budget":
+            data["budgetRows"] = []
+        if scope != "base":
+            data["unifiedRows"] = []
+            data["operationRows"] = []
         row_fields = (
             "source",
             "period",
@@ -410,7 +423,9 @@ class PLHandler(SimpleHTTPRequestHandler):
         path = self.path.split("?", 1)[0].rstrip("/")
         if path == "/data":
             try:
-                payload = read_data_from_db()
+                query = parse_qs(urlparse(self.path).query)
+                scope = (query.get("scope") or ["all"])[0]
+                payload = read_data_from_db(scope)
                 if payload is None:
                     payload = json.loads(DATA_FILE.read_text(encoding="utf-8"))
                 body = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
