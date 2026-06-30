@@ -15,6 +15,8 @@ _dashboard_work/source_copies/
 _pl_work/node_modules/
 _pl_work/pl_ledger.json
 _pl_work/pl_data.json
+_pl_work/*.sqlite
+_pl_work/*.sqlite-*
 _pl_work/budget_seed.json
 _pl_work/*preview.png
 _dashboard_work/dashboard_data.json

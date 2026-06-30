@@ -8,6 +8,8 @@ from pathlib import Path
 
 from openpyxl import load_workbook
 
+import pl_database
+
 
 BASE = Path(__file__).resolve().parent
 SOURCE_FILE = Path(r"C:\Users\PauloMendonça\OneDrive - Redefrete\Área de Trabalho\Balanço\DashBoard_P&L\P&L.xlsx")
@@ -1081,6 +1083,7 @@ def build_data():
     }
     DATA_OUT.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     LEDGER_OUT.write_text(json.dumps(ledger_rows(unified_rows), ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    pl_database.write_database(data)
     return data
 
 

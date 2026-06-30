@@ -321,6 +321,7 @@ class PLHandler(SimpleHTTPRequestHandler):
 
             sys.path.insert(0, str(BASE))
             import build_pl_dashboard as builder
+            import pl_database
 
             data = json.loads(DATA_FILE.read_text(encoding="utf-8"))
             actual_periods = data.get("meta", {}).get("periods", [])
@@ -342,6 +343,7 @@ class PLHandler(SimpleHTTPRequestHandler):
                 json.dumps(data, ensure_ascii=False, separators=(",", ":")),
                 encoding="utf-8",
             )
+            pl_database.update_budget_rows(data)
             elapsed = time.perf_counter() - started
             return {
                 "ok": True,
