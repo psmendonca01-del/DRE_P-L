@@ -1,4 +1,5 @@
 import json
+import sqlite3
 import subprocess
 import sys
 import time
@@ -14,6 +15,7 @@ BUDGET_FILE = Path(r"C:\Users\PauloMendonça\OneDrive - Redefrete\Área de Traba
 WORKBOOK = BASE / "PL.xlsx"
 DATA_FILE = BASE / "pl_data.json"
 LEDGER_FILE = BASE / "pl_ledger.json"
+DB_FILE = BASE / "pl_database.sqlite"
 NOTES_FILE = BASE / "pl_notes.json"
 STATUS_LOG = BASE / "pl_server.status.log"
 LEDGER_CACHE = {"mtime": None, "rows": []}
@@ -106,6 +108,106 @@ def load_ledger():
     return LEDGER_CACHE["rows"]
 
 
+def read_ledger_from_db(payload):
+    if not DB_FILE.exists():
+        return None
+    filters = payload.get("filters", {})
+    periods = set(filters.get("months") or [])
+    line_key = payload.get("lineKey")
+    account = payload.get("account")
+    category = payload.get("category")
+    where = []
+    args = []
+    if periods:
+        where.append(f"period IN ({','.join('?' for _ in periods)})")
+        args.extend(sorted(periods))
+    if line_key:
+        where.append("lineKey = ?")
+        args.append(line_key)
+    if account:
+        where.append("accountLoose = ?")
+        args.append(loose_norm(account))
+    if category:
+        where.append("categoryLoose = ?")
+        args.append(loose_norm(category))
+    filter_map = (
+        ("client", "clientNorm"),
+        ("project", "projectNorm"),
+        ("unit", "unitNorm"),
+        ("expt", "exptNorm"),
+        ("type", "typeNorm"),
+        ("fleet", "fleetNorm"),
+    )
+    for filter_name, column in filter_map:
+        value = filters.get(filter_name)
+        if not is_all_filter(value):
+            where.append(f"{column} = ?")
+            args.append(norm(value))
+    group_fields = (
+        "period",
+        "source",
+        "sourceRow",
+        "party",
+        "invoice",
+        "account",
+        "category",
+        "client",
+        "project",
+        "hub",
+        "expt",
+        "vehicleType",
+        "fleetType",
+        "originalValue",
+    )
+    sql = (
+        f"SELECT {', '.join(group_fields)}, SUM(value) AS value "
+        "FROM ledger_rows"
+    )
+    if where:
+        sql += " WHERE " + " AND ".join(where)
+    sql += f" GROUP BY {', '.join(group_fields)}"
+    rows = []
+    with sqlite3.connect(str(DB_FILE)) as conn:
+        conn.row_factory = sqlite3.Row
+        for row in conn.execute(sql, args):
+            rows.append(dict(row))
+    return rows
+
+
+def grouped_ledger_payload(rows):
+    grouped = {}
+    for row in rows:
+        key = (
+            row.get("period", ""),
+            row.get("source", ""),
+            row.get("sourceRow", ""),
+            row.get("party", ""),
+            row.get("invoice", ""),
+            row.get("account", ""),
+            row.get("category", ""),
+            row.get("originalValue", ""),
+        )
+        if key not in grouped:
+            grouped[key] = {
+                "period": row.get("period", ""),
+                "source": row.get("source", ""),
+                "party": row.get("party") or row.get("client") or "",
+                "invoice": row.get("invoice", ""),
+                "account": row.get("account", ""),
+                "category": row.get("category", ""),
+                "client": row.get("client", ""),
+                "project": row.get("project", ""),
+                "hub": row.get("hub", ""),
+                "expt": row.get("expt", ""),
+                "vehicleType": row.get("vehicleType", ""),
+                "fleetType": row.get("fleetType", ""),
+                "originalValue": float(row.get("originalValue") or row.get("value") or 0),
+                "value": 0.0,
+            }
+        grouped[key]["value"] += float(row.get("value") or 0)
+    return sorted(grouped.values(), key=lambda item: (str(item.get("period", "")), str(item.get("source", "")), str(item.get("invoice", ""))))
+
+
 def status(message):
     with STATUS_LOG.open("a", encoding="utf-8") as handle:
         handle.write(f"{message}\n")
@@ -149,74 +251,46 @@ class PLHandler(SimpleHTTPRequestHandler):
             raw = self.rfile.read(length).decode("utf-8") if length else "{}"
             payload = json.loads(raw or "{}")
             filters = payload.get("filters", {})
-            periods = set(filters.get("months") or [])
-            line_key = payload.get("lineKey")
-            account = payload.get("account")
-            category = payload.get("category")
-            account_loose = loose_norm(account)
-            category_loose = loose_norm(category)
-            filter_norms = {
-                "client": norm(filters.get("client")),
-                "project": norm(filters.get("project")),
-                "unit": norm(filters.get("unit")),
-                "expt": norm(filters.get("expt")),
-                "type": norm(filters.get("type")),
-                "fleet": norm(filters.get("fleet")),
-            }
-            rows = []
-            for row in load_ledger():
-                if periods and row.get("period") not in periods:
-                    continue
-                if line_key and row.get("_line") != line_key:
-                    continue
-                if account and row.get("_accountLoose") != account_loose:
-                    continue
-                if category and row.get("_categoryLoose") != category_loose:
-                    continue
-                if not is_all_filter(filters.get("client")) and row.get("_clientNorm") != filter_norms["client"]:
-                    continue
-                if not is_all_filter(filters.get("project")) and row.get("_projectNorm") != filter_norms["project"]:
-                    continue
-                if not is_all_filter(filters.get("unit")) and row.get("_unitNorm") != filter_norms["unit"]:
-                    continue
-                if not is_all_filter(filters.get("expt")) and row.get("_exptNorm") != filter_norms["expt"]:
-                    continue
-                if not is_all_filter(filters.get("type")) and row.get("_typeNorm") != filter_norms["type"]:
-                    continue
-                if not is_all_filter(filters.get("fleet")) and row.get("_fleetNorm") != filter_norms["fleet"]:
-                    continue
-                rows.append(row)
-            grouped = {}
-            for row in rows:
-                key = (
-                    row.get("period", ""),
-                    row.get("source", ""),
-                    row.get("sourceRow", ""),
-                    row.get("party", ""),
-                    row.get("invoice", ""),
-                    row.get("account", ""),
-                    row.get("category", ""),
-                    row.get("originalValue", ""),
-                )
-                if key not in grouped:
-                    grouped[key] = {
-                        "period": row.get("period", ""),
-                        "source": row.get("source", ""),
-                        "party": row.get("party") or row.get("client") or "",
-                        "invoice": row.get("invoice", ""),
-                        "account": row.get("account", ""),
-                        "category": row.get("category", ""),
-                        "client": row.get("client", ""),
-                        "project": row.get("project", ""),
-                        "hub": row.get("hub", ""),
-                        "expt": row.get("expt", ""),
-                        "vehicleType": row.get("vehicleType", ""),
-                        "fleetType": row.get("fleetType", ""),
-                        "originalValue": float(row.get("originalValue") or row.get("value") or 0),
-                        "value": 0.0,
-                    }
-                grouped[key]["value"] += float(row.get("value") or 0)
-            rows = sorted(grouped.values(), key=lambda item: (str(item.get("period", "")), str(item.get("source", "")), str(item.get("invoice", ""))))
+            raw_rows = read_ledger_from_db(payload)
+            if raw_rows is None:
+                periods = set(filters.get("months") or [])
+                line_key = payload.get("lineKey")
+                account = payload.get("account")
+                category = payload.get("category")
+                account_loose = loose_norm(account)
+                category_loose = loose_norm(category)
+                filter_norms = {
+                    "client": norm(filters.get("client")),
+                    "project": norm(filters.get("project")),
+                    "unit": norm(filters.get("unit")),
+                    "expt": norm(filters.get("expt")),
+                    "type": norm(filters.get("type")),
+                    "fleet": norm(filters.get("fleet")),
+                }
+                raw_rows = []
+                for row in load_ledger():
+                    if periods and row.get("period") not in periods:
+                        continue
+                    if line_key and row.get("_line") != line_key:
+                        continue
+                    if account and row.get("_accountLoose") != account_loose:
+                        continue
+                    if category and row.get("_categoryLoose") != category_loose:
+                        continue
+                    if not is_all_filter(filters.get("client")) and row.get("_clientNorm") != filter_norms["client"]:
+                        continue
+                    if not is_all_filter(filters.get("project")) and row.get("_projectNorm") != filter_norms["project"]:
+                        continue
+                    if not is_all_filter(filters.get("unit")) and row.get("_unitNorm") != filter_norms["unit"]:
+                        continue
+                    if not is_all_filter(filters.get("expt")) and row.get("_exptNorm") != filter_norms["expt"]:
+                        continue
+                    if not is_all_filter(filters.get("type")) and row.get("_typeNorm") != filter_norms["type"]:
+                        continue
+                    if not is_all_filter(filters.get("fleet")) and row.get("_fleetNorm") != filter_norms["fleet"]:
+                        continue
+                    raw_rows.append(row)
+            rows = grouped_ledger_payload(raw_rows)
             original = sum(float(row.get("originalValue") or row.get("value") or 0) for row in rows)
             absorbed = sum(float(row.get("value") or 0) for row in rows)
             def common(key, label):

@@ -1,5 +1,6 @@
 import json
 import sqlite3
+import unicodedata
 from pathlib import Path
 
 
@@ -46,6 +47,75 @@ NUMERIC_FIELDS = (
     "evidenced",
 )
 
+LEDGER_TEXT_FIELDS = TEXT_FIELDS + (
+    "sourceRow",
+    "party",
+    "invoice",
+    "rateioOriginProject",
+    "rateioOriginDepartment",
+    "lineKey",
+    "accountLoose",
+    "categoryLoose",
+    "clientNorm",
+    "projectNorm",
+    "unitNorm",
+    "exptNorm",
+    "typeNorm",
+    "fleetNorm",
+)
+
+LEDGER_NUMERIC_FIELDS = NUMERIC_FIELDS + ("originalValue",)
+
+
+def norm(value):
+    text = unicodedata.normalize("NFD", str(value or ""))
+    text = "".join(ch for ch in text if unicodedata.category(ch) != "Mn")
+    return "".join(ch for ch in text.upper() if ch.isalnum())
+
+
+def loose_norm(value):
+    return norm(value).replace("C", "")
+
+
+def unit_value(row):
+    return row.get("hub") or row.get("department") or row.get("sourceHub") or ""
+
+
+def line_bucket(row):
+    account = norm(row.get("account"))
+    category = norm(row.get("category"))
+    cost_type = norm(row.get("costType"))
+    if "RENDIMENTOSDEAPLICACOES" in account or "RENDIMENTOSDEAPLICACOES" in category:
+        return "financialRevenue"
+    if "DEPRECIACAO" in account or "DEPRECIACAO" in category:
+        return "depreciation"
+    if "IRRF" in account or "IRRF" in category:
+        return "resultTaxes"
+    if "IRPJ" in account or "IRPJ" in category:
+        return "resultTaxes"
+    if "CSLL" in account or "CSLL" in category:
+        return "resultTaxes"
+    if "RECEITABRUTA" in account:
+        return "gross"
+    if "IMPOSTOS" in account or "DEDUCOES" in account:
+        return "deductions"
+    if "CUSTODOSSERVICOS" in account:
+        return "costsVariable" if "VARIAVEL" in cost_type else "costsFixed"
+    if "OUTRASRECEITAS" in account:
+        return "costsFixed"
+    if (
+        "DESPESASADMINISTRATIVAS" in account
+        or "DESPESASCOMPESSOAL" in account
+        or "VENDASEMARKETING" in account
+        or "OUTROSTRIBUTOS" in account
+    ):
+        return "expensesTotal"
+    if "RECEITASFINANCEIRAS" in account:
+        return "financialResult"
+    if "DESPESASFINANCEIRAS" in account:
+        return "financialResult"
+    return "other"
+
 
 def _connect(db_file=DB_FILE):
     conn = sqlite3.connect(str(db_file))
@@ -78,6 +148,44 @@ def _insert_rows(conn, table, rows):
         conn.executemany(sql, payloads)
 
 
+def _create_ledger_table(conn):
+    columns = ["id INTEGER PRIMARY KEY"]
+    columns.extend(f"{name} TEXT" for name in LEDGER_TEXT_FIELDS)
+    columns.extend(f"{name} REAL" for name in LEDGER_NUMERIC_FIELDS)
+    columns.append("payload TEXT NOT NULL")
+    conn.execute("DROP TABLE IF EXISTS ledger_rows")
+    conn.execute(f"CREATE TABLE ledger_rows ({', '.join(columns)})")
+
+
+def _ledger_row(row):
+    out = dict(row)
+    out["lineKey"] = line_bucket(row)
+    out["accountLoose"] = loose_norm(row.get("account"))
+    out["categoryLoose"] = loose_norm(row.get("category"))
+    out["clientNorm"] = norm(row.get("client"))
+    out["projectNorm"] = norm(row.get("project"))
+    out["unitNorm"] = norm(unit_value(row))
+    out["exptNorm"] = norm(row.get("expt"))
+    out["typeNorm"] = norm(row.get("vehicleType"))
+    out["fleetNorm"] = norm(row.get("fleetType"))
+    return out
+
+
+def _insert_ledger_rows(conn, rows):
+    fields = list(LEDGER_TEXT_FIELDS) + list(LEDGER_NUMERIC_FIELDS) + ["payload"]
+    placeholders = ",".join("?" for _ in fields)
+    sql = f"INSERT INTO ledger_rows ({', '.join(fields)}) VALUES ({placeholders})"
+    payloads = []
+    for row in rows:
+        prepared = _ledger_row(row)
+        values = [prepared.get(name, "") for name in LEDGER_TEXT_FIELDS]
+        values.extend(float(prepared.get(name) or 0) for name in LEDGER_NUMERIC_FIELDS)
+        values.append(json.dumps(row, ensure_ascii=False, separators=(",", ":")))
+        payloads.append(values)
+    if payloads:
+        conn.executemany(sql, payloads)
+
+
 def _create_indexes(conn, table):
     for fields in (
         ("period",),
@@ -95,6 +203,27 @@ def _create_indexes(conn, table):
         conn.execute(f"CREATE INDEX {index_name} ON {table} ({', '.join(fields)})")
 
 
+def _create_ledger_indexes(conn):
+    for fields in (
+        ("period",),
+        ("lineKey",),
+        ("accountLoose",),
+        ("categoryLoose",),
+        ("clientNorm",),
+        ("projectNorm",),
+        ("unitNorm",),
+        ("exptNorm",),
+        ("typeNorm",),
+        ("fleetNorm",),
+        ("period", "lineKey"),
+        ("period", "lineKey", "accountLoose"),
+        ("period", "lineKey", "accountLoose", "categoryLoose"),
+        ("period", "clientNorm", "projectNorm", "unitNorm"),
+    ):
+        index_name = f"idx_ledger_rows_{'_'.join(fields)}"
+        conn.execute(f"CREATE INDEX {index_name} ON ledger_rows ({', '.join(fields)})")
+
+
 def _write_meta(conn, meta):
     conn.execute("DROP TABLE IF EXISTS meta")
     conn.execute("CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT)")
@@ -104,7 +233,7 @@ def _write_meta(conn, meta):
     )
 
 
-def write_database(data, db_file=DB_FILE):
+def write_database(data, ledger=None, db_file=DB_FILE):
     db_file = Path(db_file)
     db_file.parent.mkdir(parents=True, exist_ok=True)
     tmp_file = db_file.with_suffix(".sqlite.tmp")
@@ -119,6 +248,10 @@ def write_database(data, db_file=DB_FILE):
             _create_row_table(conn, table)
             _insert_rows(conn, table, rows)
             _create_indexes(conn, table)
+        if ledger is not None:
+            _create_ledger_table(conn)
+            _insert_ledger_rows(conn, ledger)
+            _create_ledger_indexes(conn)
         conn.commit()
     finally:
         conn.close()

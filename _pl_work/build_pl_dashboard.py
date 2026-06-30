@@ -1081,9 +1081,10 @@ def build_data():
         "unifiedRows": compact_unified_rows,
         "budgetRows": budget_rows,
     }
+    ledger = ledger_rows(unified_rows)
     DATA_OUT.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-    LEDGER_OUT.write_text(json.dumps(ledger_rows(unified_rows), ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-    pl_database.write_database(data)
+    LEDGER_OUT.write_text(json.dumps(ledger, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    pl_database.write_database(data, ledger=ledger)
     return data
 
 
