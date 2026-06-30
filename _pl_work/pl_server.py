@@ -1,13 +1,16 @@
 import json
 import subprocess
 import sys
+import time
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 
 BASE = Path(__file__).resolve().parent
 BUILD_SCRIPT = BASE / "build_pl_dashboard.py"
 SOURCE_FILE = Path(r"C:\Users\PauloMendonça\OneDrive - Redefrete\Área de Trabalho\Balanço\DashBoard_P&L\P&L.xlsx")
+BUDGET_FILE = Path(r"C:\Users\PauloMendonça\OneDrive - Redefrete\Área de Trabalho\Balanço\DashBoard_P&L\Budget.xlsx")
 WORKBOOK = BASE / "PL.xlsx"
 DATA_FILE = BASE / "pl_data.json"
 LEDGER_FILE = BASE / "pl_ledger.json"
@@ -121,7 +124,8 @@ class PLHandler(SimpleHTTPRequestHandler):
         super().end_headers()
 
     def do_POST(self):
-        path = self.path.rstrip("/")
+        parsed = urlparse(self.path)
+        path = parsed.path.rstrip("/")
         if path == "/notes":
             self.save_notes()
             return
@@ -131,7 +135,7 @@ class PLHandler(SimpleHTTPRequestHandler):
         if path != "/refresh":
             self.send_error(404, "Endpoint not found")
             return
-        payload = self.refresh_payload()
+        payload = self.refresh_payload(parse_qs(parsed.query))
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         self.send_response(200 if payload.get("ok") else 500)
         self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -293,7 +297,76 @@ class PLHandler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def refresh_payload(self):
+    def refresh_budget_payload(self):
+        started = time.perf_counter()
+        try:
+            if not DATA_FILE.exists():
+                return {
+                    "ok": False,
+                    "copied": False,
+                    "budgetOnly": True,
+                    "sourceFile": str(BUDGET_FILE),
+                    "stdout": "",
+                    "stderr": "pl_data.json não encontrado. Faça uma atualização completa primeiro.",
+                }
+            if not BUDGET_FILE.exists():
+                return {
+                    "ok": False,
+                    "copied": False,
+                    "budgetOnly": True,
+                    "sourceFile": str(BUDGET_FILE),
+                    "stdout": "",
+                    "stderr": f"Budget não encontrado: {BUDGET_FILE}",
+                }
+
+            sys.path.insert(0, str(BASE))
+            import build_pl_dashboard as builder
+
+            data = json.loads(DATA_FILE.read_text(encoding="utf-8"))
+            actual_periods = data.get("meta", {}).get("periods", [])
+            budget_rows, budget_campaigns = builder.load_budget_rows(actual_periods)
+            budget_periods = sorted({item["period"] for item in budget_rows})
+            budget_scenarios = sorted({item.get("scenario") for item in budget_rows if item.get("scenario")})
+
+            data["budgetRows"] = budget_rows
+            meta = data.setdefault("meta", {})
+            meta["budgetPeriods"] = budget_periods
+            meta["budgetScenarios"] = budget_scenarios
+            meta["budgetRows"] = len(budget_rows)
+            meta["budgetCampaigns"] = len(budget_campaigns)
+            meta["budgetSourceFile"] = str(BUDGET_FILE)
+            meta["budgetSourceMtimeNs"] = BUDGET_FILE.stat().st_mtime_ns
+            meta["budgetRefreshedAt"] = time.strftime("%Y-%m-%d %H:%M:%S")
+
+            DATA_FILE.write_text(
+                json.dumps(data, ensure_ascii=False, separators=(",", ":")),
+                encoding="utf-8",
+            )
+            elapsed = time.perf_counter() - started
+            return {
+                "ok": True,
+                "copied": False,
+                "budgetOnly": True,
+                "sourceFile": str(BUDGET_FILE),
+                "stdout": f"Budget atualizado: {len(budget_rows)} linhas em {elapsed:.1f}s.",
+                "stderr": "",
+            }
+        except Exception as exc:
+            status(f"budget refresh error: {exc!r}")
+            return {
+                "ok": False,
+                "copied": False,
+                "budgetOnly": True,
+                "sourceFile": str(BUDGET_FILE),
+                "stdout": "",
+                "stderr": repr(exc),
+            }
+
+    def refresh_payload(self, params=None):
+        params = params or {}
+        if (params.get("view") or [""])[0] == "budget":
+            return self.refresh_budget_payload()
+
         copied = False
         try:
             if SOURCE_FILE.exists() and DATA_FILE.exists():
