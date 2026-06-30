@@ -448,69 +448,72 @@ def load_budget_rows(actual_periods=None):
     if not BUDGET_FILE.exists():
         return [], []
     wb = load_workbook(BUDGET_FILE, read_only=True, data_only=True)
-    if "Budget" not in wb.sheetnames:
-        return [], []
-    campaigns = load_budget_campaigns(wb)
-    ws = wb["Budget"]
-    idx = header_index(ws)
-    rows = []
-    for excel_row, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
-        period = clean(get_by_header(row, idx, "Período", "Periodo"), "")
-        if not period:
-            year = get_by_header(row, idx, "Ano")
-            month = get_by_header(row, idx, "Mês", "Mes")
-            if year and month:
-                try:
-                    period = f"{int(float(year)):04d}-{int(float(month)):02d}"
-                except Exception:
-                    period = ""
-        value = safe_float(get_by_header(row, idx, "Valor Budget", "Budget", "Valor"))
-        if not period or abs(value) <= 0.0001:
-            continue
-        hub = canonical_location(clean(get_by_header(row, idx, "Unidade", "Hub"), "N/D"))
-        expt = canonical_location(clean(get_by_header(row, idx, "Expt"), hub))
-        item = {
-            "source": "Budget",
-            "period": period,
-            "scenario": clean(get_by_header(row, idx, "Cenário", "Cenario"), "Budget"),
-            "account": clean(get_by_header(row, idx, "Conta DRE"), "N/D"),
-            "category": clean(get_by_header(row, idx, "Categoria"), "N/D"),
-            "client": clean(get_by_header(row, idx, "Cliente"), "N/D"),
-            "project": clean(get_by_header(row, idx, "Projeto"), "N/D"),
-            "sourceHub": hub,
-            "hub": hub,
-            "expt": expt,
-            "department": expt,
-            "vehicleType": clean(get_by_header(row, idx, "Tipo"), "N/D"),
-            "fleetType": clean(get_by_header(row, idx, "Frota"), "N/D"),
-            "costType": clean(get_by_header(row, idx, "Tipo Custo"), ""),
-            "note": clean(get_by_header(row, idx, "Observação", "Observacao"), ""),
-            "sourceRow": excel_row,
-            "value": value,
-        }
-        if budget_campaign_base(item):
-            multiplier, campaigns_applied = budget_campaign_multiplier(item, campaigns)
-            if abs(multiplier - 1.0) > 0.0001:
-                item["value"] = item["value"] * multiplier
-                item["campaign"] = ", ".join(campaigns_applied)
-        rows.append(item)
-    if rows and actual_periods:
-        budget_periods = sorted({item["period"] for item in rows})
-        budget_years = {period[:4] for period in budget_periods}
-        comparable_actual_periods = {period for period in actual_periods if period[:4] in budget_years}
-        missing_actual_periods = sorted(comparable_actual_periods - set(budget_periods))
-        if missing_actual_periods and budget_periods:
-            template_period = budget_periods[0]
-            template_rows = [item for item in rows if item["period"] == template_period]
-            for period in missing_actual_periods:
-                year, month = period.split("-")
-                for item in template_rows:
-                    clone = dict(item)
-                    clone["period"] = period
-                    clone["scenario"] = f"{item.get('scenario') or 'Budget'} - base comparativa"
-                    clone["note"] = "Base comparativa criada pela média 4M para permitir previsto x realizado."
-                    clone["sourceRow"] = None
-                    rows.append(clone)
+    try:
+        if "Budget" not in wb.sheetnames:
+            return [], []
+        campaigns = load_budget_campaigns(wb)
+        ws = wb["Budget"]
+        idx = header_index(ws)
+        rows = []
+        for excel_row, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
+            period = clean(get_by_header(row, idx, "Período", "Periodo"), "")
+            if not period:
+                year = get_by_header(row, idx, "Ano")
+                month = get_by_header(row, idx, "Mês", "Mes")
+                if year and month:
+                    try:
+                        period = f"{int(float(year)):04d}-{int(float(month)):02d}"
+                    except Exception:
+                        period = ""
+            value = safe_float(get_by_header(row, idx, "Valor Budget", "Budget", "Valor"))
+            if not period or abs(value) <= 0.0001:
+                continue
+            hub = canonical_location(clean(get_by_header(row, idx, "Unidade", "Hub"), "N/D"))
+            expt = canonical_location(clean(get_by_header(row, idx, "Expt"), hub))
+            item = {
+                "source": "Budget",
+                "period": period,
+                "scenario": clean(get_by_header(row, idx, "Cenário", "Cenario"), "Budget"),
+                "account": clean(get_by_header(row, idx, "Conta DRE"), "N/D"),
+                "category": clean(get_by_header(row, idx, "Categoria"), "N/D"),
+                "client": clean(get_by_header(row, idx, "Cliente"), "N/D"),
+                "project": clean(get_by_header(row, idx, "Projeto"), "N/D"),
+                "sourceHub": hub,
+                "hub": hub,
+                "expt": expt,
+                "department": expt,
+                "vehicleType": clean(get_by_header(row, idx, "Tipo"), "N/D"),
+                "fleetType": clean(get_by_header(row, idx, "Frota"), "N/D"),
+                "costType": clean(get_by_header(row, idx, "Tipo Custo"), ""),
+                "note": clean(get_by_header(row, idx, "Observação", "Observacao"), ""),
+                "sourceRow": excel_row,
+                "value": value,
+            }
+            if budget_campaign_base(item):
+                multiplier, campaigns_applied = budget_campaign_multiplier(item, campaigns)
+                if abs(multiplier - 1.0) > 0.0001:
+                    item["value"] = item["value"] * multiplier
+                    item["campaign"] = ", ".join(campaigns_applied)
+            rows.append(item)
+        if rows and actual_periods:
+            budget_periods = sorted({item["period"] for item in rows})
+            budget_years = {period[:4] for period in budget_periods}
+            comparable_actual_periods = {period for period in actual_periods if period[:4] in budget_years}
+            missing_actual_periods = sorted(comparable_actual_periods - set(budget_periods))
+            if missing_actual_periods and budget_periods:
+                template_period = budget_periods[0]
+                template_rows = [item for item in rows if item["period"] == template_period]
+                for period in missing_actual_periods:
+                    year, month = period.split("-")
+                    for item in template_rows:
+                        clone = dict(item)
+                        clone["period"] = period
+                        clone["scenario"] = f"{item.get('scenario') or 'Budget'} - base comparativa"
+                        clone["note"] = "Base comparativa criada pela média 4M para permitir previsto x realizado."
+                        clone["sourceRow"] = None
+                        rows.append(clone)
+    finally:
+        wb.close()
     return compact_finance_rows(rows), campaigns
 
 
