@@ -1,4 +1,5 @@
 import json
+import os
 import sqlite3
 import unicodedata
 from pathlib import Path
@@ -236,6 +237,24 @@ def _write_meta(conn, meta):
 def write_database(data, ledger=None, db_file=DB_FILE):
     db_file = Path(db_file)
     db_file.parent.mkdir(parents=True, exist_ok=True)
+    if os.environ.get("PL_DB_IN_PLACE") == "1" and db_file.exists():
+        conn = _connect(db_file)
+        try:
+            _write_meta(conn, data.get("meta", {}))
+            for data_key, table in ROW_TABLES.items():
+                rows = data.get(data_key, [])
+                _create_row_table(conn, table)
+                _insert_rows(conn, table, rows)
+                _create_indexes(conn, table)
+            if ledger is not None:
+                _create_ledger_table(conn)
+                _insert_ledger_rows(conn, ledger)
+                _create_ledger_indexes(conn)
+            conn.commit()
+        finally:
+            conn.close()
+        return db_file
+
     tmp_file = db_file.with_suffix(".sqlite.tmp")
     if tmp_file.exists():
         tmp_file.unlink()

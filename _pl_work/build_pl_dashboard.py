@@ -1,5 +1,6 @@
 ﻿import json
 import math
+import os
 import shutil
 import unicodedata
 from collections import defaultdict
@@ -1082,9 +1083,10 @@ def build_data():
         "budgetRows": budget_rows,
     }
     ledger = ledger_rows(unified_rows)
-    DATA_OUT.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-    LEDGER_OUT.write_text(json.dumps(ledger, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     pl_database.write_database(data, ledger=ledger)
+    if os.environ.get("PL_SKIP_LEGACY_JSON") != "1":
+        DATA_OUT.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        LEDGER_OUT.write_text(json.dumps(ledger, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return data
 
 

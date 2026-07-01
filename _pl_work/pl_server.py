@@ -1,4 +1,5 @@
 import json
+import os
 import sqlite3
 import subprocess
 import sys
@@ -228,15 +229,26 @@ def _compact_row(row):
     return out
 
 
+def read_db_meta():
+    if not DB_FILE.exists():
+        return {}
+    try:
+        with sqlite3.connect(str(DB_FILE)) as conn:
+            conn.row_factory = sqlite3.Row
+            return {
+                row["key"]: _decode_meta_value(row["value"])
+                for row in conn.execute("SELECT key, value FROM meta")
+            }
+    except sqlite3.Error:
+        return {}
+
+
 def read_data_from_db(scope="all"):
     if not DB_FILE.exists():
         return None
     with sqlite3.connect(str(DB_FILE)) as conn:
         conn.row_factory = sqlite3.Row
-        meta = {
-            row["key"]: _decode_meta_value(row["value"])
-            for row in conn.execute("SELECT key, value FROM meta")
-        }
+        meta = read_db_meta()
         if scope == "base":
             tables = {
                 "unifiedRows": "unified_rows",
@@ -486,14 +498,14 @@ class PLHandler(SimpleHTTPRequestHandler):
     def refresh_budget_payload(self):
         started = time.perf_counter()
         try:
-            if not DATA_FILE.exists():
+            if not DB_FILE.exists():
                 return {
                     "ok": False,
                     "copied": False,
                     "budgetOnly": True,
                     "sourceFile": str(BUDGET_FILE),
                     "stdout": "",
-                    "stderr": "pl_data.json não encontrado. Faça uma atualização completa primeiro.",
+                    "stderr": "Banco SQLite não encontrado. Faça uma atualização completa primeiro.",
                 }
             if not BUDGET_FILE.exists():
                 return {
@@ -509,14 +521,12 @@ class PLHandler(SimpleHTTPRequestHandler):
             import build_pl_dashboard as builder
             import pl_database
 
-            data = json.loads(DATA_FILE.read_text(encoding="utf-8"))
-            actual_periods = data.get("meta", {}).get("periods", [])
+            meta = read_db_meta()
+            actual_periods = meta.get("periods", [])
             budget_rows, budget_campaigns = builder.load_budget_rows(actual_periods)
             budget_periods = sorted({item["period"] for item in budget_rows})
             budget_scenarios = sorted({item.get("scenario") for item in budget_rows if item.get("scenario")})
 
-            data["budgetRows"] = budget_rows
-            meta = data.setdefault("meta", {})
             meta["budgetPeriods"] = budget_periods
             meta["budgetScenarios"] = budget_scenarios
             meta["budgetRows"] = len(budget_rows)
@@ -525,10 +535,7 @@ class PLHandler(SimpleHTTPRequestHandler):
             meta["budgetSourceMtimeNs"] = BUDGET_FILE.stat().st_mtime_ns
             meta["budgetRefreshedAt"] = time.strftime("%Y-%m-%d %H:%M:%S")
 
-            DATA_FILE.write_text(
-                json.dumps(data, ensure_ascii=False, separators=(",", ":")),
-                encoding="utf-8",
-            )
+            data = {"meta": meta, "budgetRows": budget_rows}
             pl_database.update_budget_rows(data)
             elapsed = time.perf_counter() - started
             return {
@@ -557,10 +564,10 @@ class PLHandler(SimpleHTTPRequestHandler):
 
         copied = False
         try:
-            if SOURCE_FILE.exists() and DATA_FILE.exists():
+            if SOURCE_FILE.exists() and DB_FILE.exists():
                 try:
                     current_mtime = SOURCE_FILE.stat().st_mtime_ns
-                    meta = json.loads(DATA_FILE.read_text(encoding="utf-8")).get("meta", {})
+                    meta = read_db_meta()
                     if meta.get("sourceMtimeNs") == current_mtime:
                         return {
                             "ok": True,
@@ -572,9 +579,13 @@ class PLHandler(SimpleHTTPRequestHandler):
                         }
                 except Exception as exc:
                     status(f"refresh cache check ignored: {exc!r}")
+            env = os.environ.copy()
+            env["PL_SKIP_LEGACY_JSON"] = "1"
+            env["PL_DB_IN_PLACE"] = "1"
             result = subprocess.run(
                 [sys.executable, str(BUILD_SCRIPT)],
                 cwd=str(BASE.parent),
+                env=env,
                 capture_output=True,
                 text=True,
             )
