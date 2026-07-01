@@ -285,6 +285,12 @@ def read_data_from_db(scope="all"):
         )
         sql = f"SELECT {', '.join(row_fields)} FROM {{table}}"
         for data_key, table in tables.items():
+            if data_key == "operationRows":
+                data[data_key] = [
+                    _compact_row(json.loads(row["payload"]))
+                    for row in conn.execute("SELECT payload FROM operation_rows")
+                ]
+                continue
             data[data_key] = [
                 _compact_row(row)
                 for row in conn.execute(sql.format(table=table))
